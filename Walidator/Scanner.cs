@@ -11,7 +11,7 @@ namespace Walidator
     public class scanner
     {
 
-        private static Regex numberRegex = new Regex(@"^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$"); // double, int i postaci wykladnicze
+        private static Regex numberRegex = new Regex(@"^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$"); // double, int charCounter postaci wykladnicze
         private static char[] numberChars = { 'e', 'E', '-', '.', '+' };//tablica z akceptowanymi znakami dla liczby nie liczac cyfr
         public static string jsonf; //kopia tekstu json
         public static List<string> lines = new List<string>(); // zbiór linii
@@ -23,15 +23,15 @@ namespace Walidator
             lines.Clear();
 
             int line = 1;//licznik linii
-            int i = 0; //licznik char
+            int charCounter = 0; //licznik char
 
             char lastChar = ' '; //przechowuje przedostatni znak
-            char c; //zmienna do iteracji po znakach
+            char iterateSigns; //zmienna do iteracji po znakach
 
             string currentLine = ""; // akumulowana obecna linia
             string tmp = ""; //tymczasowa pomocnicza zmienna
 
-            bool isIn = false;// zmienna do sprawdzania czy jest w srodku czy poza napisem
+            bool isInsideText = false;// zmienna do sprawdzania czy jest w srodku czy poza napisem
 
 
             // Jeśli nic nie dostalismy => koniec
@@ -40,39 +40,39 @@ namespace Walidator
                 throw new JSONException("JSON file is empty.\n");
             }
 
-            TokensList.Add(new Token(Token.jsonFile, i, line)); //dodajemy token startowy
+            TokensList.Add(new Token(Token.jsonFile, charCounter, line)); //dodajemy token startowy
 
-            for (; i < json.Length; i++)
+            for (; charCounter < json.Length; charCounter++)
             {
-                c = json[i];
-                currentLine += c;
-                if (c == '{')
+                iterateSigns = json[charCounter];
+                currentLine += iterateSigns;
+                if (iterateSigns == '{')
                 {
-                    if (isIn)
-                        TokensList.Add(new Token(Token.CHAR, i, line));
+                    if (isInsideText)
+                        TokensList.Add(new Token(Token.CHAR, charCounter, line));
                     else
-                        TokensList.Add(new Token(Token.objectStart, i, line));
+                        TokensList.Add(new Token(Token.objectStart, charCounter, line));
                 }
-                else if (c == '}')
+                else if (iterateSigns == '}')
                 {
-                    if (isIn)
-                        TokensList.Add(new Token(Token.CHAR, i, line));
+                    if (isInsideText)
+                        TokensList.Add(new Token(Token.CHAR, charCounter, line));
                     else
-                        TokensList.Add(new Token(Token.objectEnd, i, line));
+                        TokensList.Add(new Token(Token.objectEnd, charCounter, line));
                 }
-                else if (c == '[')
+                else if (iterateSigns == '[')
                 {
-                    if (isIn)
-                        TokensList.Add(new Token(Token.CHAR, i, line));
+                    if (isInsideText)
+                        TokensList.Add(new Token(Token.CHAR, charCounter, line));
                     else
-                        TokensList.Add(new Token(Token.arrayStart, i, line));
+                        TokensList.Add(new Token(Token.arrayStart, charCounter, line));
                 }
-                else if (c == ']')
+                else if (iterateSigns == ']')
                 {
-                    if (isIn)
-                        TokensList.Add(new Token(Token.CHAR, i, line));
+                    if (isInsideText)
+                        TokensList.Add(new Token(Token.CHAR, charCounter, line));
                     else
-                        TokensList.Add(new Token(Token.arrayEnd, i, line));
+                        TokensList.Add(new Token(Token.arrayEnd, charCounter, line));
                 }
 
                 /*
@@ -82,51 +82,51 @@ namespace Walidator
                  * 3. Jesli nie jestesmy w napisie => QUOTE                 
                  */
 
-                else if (c == '"')
+                else if (iterateSigns == '"')
                 {
-                    if (isIn && lastChar != '\\')// (\")==(") 
+                    if (isInsideText && lastChar != '\\')// (\")==(") 
                     {
-                        isIn = false;
-                        TokensList.Add(new Token(Token.qute, i, line));
+                        isInsideText = false;
+                        TokensList.Add(new Token(Token.qute, charCounter, line));
                     }
-                    else if (isIn && lastChar == '\\')
+                    else if (isInsideText && lastChar == '\\')
                     {
-                        TokensList.Add(new Token(Token.CHAR, i, line));
+                        TokensList.Add(new Token(Token.CHAR, charCounter, line));
                     }
                     else
                     {
-                        TokensList.Add(new Token(Token.qute, i, line));
-                        isIn = true;
+                        TokensList.Add(new Token(Token.qute, charCounter, line));
+                        isInsideText = true;
                     }
                 }
-                else if (c == ':')
+                else if (iterateSigns == ':')
                 {
-                    if (isIn)
-                        TokensList.Add(new Token(Token.CHAR, i, line));
+                    if (isInsideText)
+                        TokensList.Add(new Token(Token.CHAR, charCounter, line));
                     else
-                        TokensList.Add(new Token(Token.colon, i, line));
+                        TokensList.Add(new Token(Token.colon, charCounter, line));
                 }
-                else if (c == ',')
+                else if (iterateSigns == ',')
                 {
-                    if (isIn)
-                        TokensList.Add(new Token(Token.CHAR, i, line));
+                    if (isInsideText)
+                        TokensList.Add(new Token(Token.CHAR, charCounter, line));
                     else
-                        TokensList.Add(new Token(Token.comma, i, line));
+                        TokensList.Add(new Token(Token.comma, charCounter, line));
                 }
-                else if (c == '.')
+                else if (iterateSigns == '.')
                 {
-                    if (isIn)
-                        TokensList.Add(new Token(Token.CHAR, i, line));
+                    if (isInsideText)
+                        TokensList.Add(new Token(Token.CHAR, charCounter, line));
                     else
-                        TokensList.Add(new Token(Token.dot, i, line));
+                        TokensList.Add(new Token(Token.dot, charCounter, line));
                 }
-                else if (c == '\n')
+                else if (iterateSigns == '\n')
                 {
                     lines.Add(currentLine);
                     currentLine = "";
                     line++;
                 }
-                else if (Char.IsWhiteSpace(c))
+                else if (Char.IsWhiteSpace(iterateSigns))
                 {
                     continue;
                 }
@@ -137,236 +137,107 @@ namespace Walidator
                 * 
                 * Jeśli żaden z powyższych zgłoś błąd 
                 */
-                else if (!isIn)
+                else if (!isInsideText)
                 {
                     try
                     {
                         //NUMBER
-                        if (c == '-' || c == '+' || c == 'E' || c == 'e' || c == '.' || Char.IsDigit(c))
+                        if (iterateSigns == '-' || iterateSigns == '+' || iterateSigns == 'E' || iterateSigns == 'e' || iterateSigns == '.' || Char.IsDigit(iterateSigns))
                         {
-                            //iterujemy i laczymy cyfery/znaki a potem patrzymy czy dobry regex
-                            while (numberChars.Contains(json[i]) || Char.IsDigit(json[i]))
+                            //iterujemy charCounter laczymy cyfery/znaki a potem patrzymy czy dobry regex
+                            while (numberChars.Contains(json[charCounter]) || Char.IsDigit(json[charCounter]))
                             {
-                                tmp += json[i].ToString();
-                                i++;
+                                tmp += json[charCounter].ToString();
+                                charCounter++;
                             }
-                            i--;
+                            charCounter--;
                             if (numberRegex.IsMatch(tmp))
-                                TokensList.Add(new Token(Token.number, i, line));
+                                TokensList.Add(new Token(Token.number, charCounter, line));
                             else
-                                throw new JSONException(ErrorMessage.errorMsg(line, i, "Number, logic value or string not in quotes!"));
+                                throw new JSONException(ErrorMessage.errorMsg(line, charCounter, "Number, logic value or string not in quotes!"));
                             tmp = "";
                         }
                         //TRUE
-                        else if (c == 't' || c == 'T')
+                        else if (iterateSigns == 't' || iterateSigns == 'T')
                         {
-                            tmp = (json[i].ToString() + json[i + 1].ToString() + json[i + 2].ToString() + json[i + 3].ToString()).ToLower();
+                            tmp = (json[charCounter].ToString() + json[charCounter + 1].ToString() + json[charCounter + 2].ToString() + json[charCounter + 3].ToString()).ToLower();
                             if (String.Equals(tmp, "true"))
                             {
-                                TokensList.Add(new Token(Token.TRUE, i, line));
-                                i += 3;
+                                TokensList.Add(new Token(Token.TRUE, charCounter, line));
+                                charCounter += 3;
                                 tmp = "";
-                                c = json[i];
+                                iterateSigns = json[charCounter];
                             }
                             else
                             {
-                                throw new JSONException(ErrorMessage.errorMsg(line, i, "Number, logic value or string not in quotes!"));
+                                throw new JSONException(ErrorMessage.errorMsg(line, charCounter, "Number, logic value or string not in quotes!"));
                             }
                         }
                         //FALSE
-                        else if (c == 'f' || c == 'F')
+                        else if (iterateSigns == 'f' || iterateSigns == 'F')
                         {
-                            tmp = (json[i].ToString() + json[i + 1].ToString() + json[i + 2].ToString() + json[i + 3].ToString() + json[i + 4]).ToLower();
+                            tmp = (json[charCounter].ToString() + json[charCounter + 1].ToString() + json[charCounter + 2].ToString() + json[charCounter + 3].ToString() + json[charCounter + 4]).ToLower();
                             if (String.Equals(tmp, "false"))
                             {
-                                TokensList.Add(new Token(Token.FALSE, i, line));
-                                i += 4;
+                                TokensList.Add(new Token(Token.FALSE, charCounter, line));
+                                charCounter += 4;
                                 tmp = "";
-                                c = json[i];
+                                iterateSigns = json[charCounter];
                             }
                             else
                             {
-                                throw new JSONException(ErrorMessage.errorMsg(line, i, "Number, logic value or string not in quotes!"));
+                                throw new JSONException(ErrorMessage.errorMsg(line, charCounter, "Number, logic value or string not in quotes!"));
                             }
                         }
                         //NULL
-                        else if (c == 'n' || c == 'N')
+                        else if (iterateSigns == 'n' || iterateSigns == 'N')
                         {
-                            tmp = (json[i].ToString() + json[i + 1].ToString() + json[i + 2].ToString() + json[i + 3].ToString()).ToLower();
+                            tmp = (json[charCounter].ToString() + json[charCounter + 1].ToString() + json[charCounter + 2].ToString() + json[charCounter + 3].ToString()).ToLower();
                             if (String.Equals(tmp, "null"))
                             {
-                                TokensList.Add(new Token(Token.NULL, i, line));
-                                i += 3;
+                                TokensList.Add(new Token(Token.NULL, charCounter, line));
+                                charCounter += 3;
                                 tmp = "";
-                                c = json[i];
+                                iterateSigns = json[charCounter];
                             }
                             else
                             {
-                                throw new JSONException(ErrorMessage.errorMsg(line, i, "Number, logic value or string not in quotes!"));
+                                throw new JSONException(ErrorMessage.errorMsg(line, charCounter, "Number, logic value or string not in quotes!"));
                             }
                         }
-                        //else jest zle
+                        // throw exception - symbol is not correct
                         else
                         {
-                            throw new JSONException(ErrorMessage.errorMsg(line, i, "Number, logic value or string not in quotes!"));
+                            throw new JSONException(ErrorMessage.errorMsg(line, charCounter, "Number, logic value or string not in quotes!"));
                         }
                     }
                     catch (IndexOutOfRangeException)
                     {
-                        throw new JSONException(ErrorMessage.errorMsg(line, i, "Unexpected EOF!"));
+                        throw new JSONException(ErrorMessage.errorMsg(line, charCounter, "Unexpected EOF!"));
                     }
                     catch (ArgumentOutOfRangeException)
                     {
-                        throw new JSONException(ErrorMessage.errorMsg(line, i, "Unexpected EOF!"));
+                        throw new JSONException(ErrorMessage.errorMsg(line, charCounter, "Unexpected EOF!"));
                     }
                 }
-                else if (isIn)
+                else if (isInsideText)
                 {
                     if (lastChar != '\\')
                     {
-                        TokensList.Add(new Token(Token.CHAR, i, line));
+                        TokensList.Add(new Token(Token.CHAR, charCounter, line));
                     }
                     else
                     {
-                        throw new JSONException(ErrorMessage.errorMsg(line, i, "Got unexpected char '\\'"));
+                        throw new JSONException(ErrorMessage.errorMsg(line, charCounter, "Got unexpected char '\\'"));
                     }
                 }
 
-                lastChar = c;
+                lastChar = iterateSigns;
             }
             lines.Add(currentLine); //dodanie ostatniej linii
-            TokensList.Add(new Token(Token.END, i, line));
+            TokensList.Add(new Token(Token.END, charCounter, line));
             return false;
         }
     }
 }
 
-
-
-//    {
-//        public static string jsonText = string.Empty;
-//        public static List<string> allLines = new List<string>();
-//        private static Regex numberRegex = new Regex(@"^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$"); // double, int i postaci wykladnicze
-//        private static char[] numberChars = { 'e', 'E', '-', '.', '+' };//tablica z akceptowanymi znakami dla liczby nie liczac cyfr
-
-//        //public lex(string json,List<Token> listTokens )
-//        //{
-//        //    jsonText = json;
-
-//        //}
-
-//        private bool lexer(string json, List<Token> listTokens)
-//        {
-//            allLines.Clear();
-//            jsonText = json;
-//            char lastchar = ' ';
-
-//            int counterLine = 1;
-//            int counterChar = 0;
-
-//            bool inWord = false;
-
-//            if (jsonText == "")
-//            {
-//                throw new JSONException("JSON file is empty.\n");
-
-//            }
-
-//            foreach (var c in jsonText)
-//            {
-
-//                if (c == '{')
-//                {
-//                    if (inWord)
-//                        listTokens.Add(new Token(Token.CHAR, i, line));
-//                    else
-//                        listTokens.Add(new Token(Token.OBJECTSTART, i, line));
-//                }
-//                else if (c == '}')
-//                {
-//                    if (inWord)
-//                        listTokens.Add(new Token(Token.CHAR, i, line));
-//                    else
-//                        listTokens.Add(new Token(Token.OBJECTEND, i, line));
-//                }
-//                else if (c == '[')
-//                {
-//                    if (inWord)
-//                        listTokens.Add(new Token(Token.CHAR, i, line));
-//                    else
-//                        listTokens.Add(new Token(Token.ARRAYSTART, i, line));
-//                }
-//                else if (c == ']')
-//                {
-//                    if (inWord)
-//                        listTokens.Add(new Token(Token.CHAR, i, line));
-//                    else
-//                        listTokens.Add(new Token(Token.ARRAYEND, i, line));
-//                }
-
-//                //////////////////////////////////
-//                ///
-
-
-//                else if (c == '"')
-//                {
-//                    if (inWord && lastChar != '\\')
-//                    {
-//                        isIn = false;
-//                        TokensList.Add(new Token(Token.QUOTE, i, line));
-//                    }
-//                    else if (isIn && lastChar == '\\')
-//                    {
-//                        TokensList.Add(new Token(Token.CHAR, i, line));
-//                    }
-//                    else
-//                    {
-//                        TokensList.Add(new Token(Token.QUOTE, i, line));
-//                        isIn = true;
-//                    }
-//                }
-//                else if (c == ':')
-//                {
-//                    if (isIn)
-//                        TokensList.Add(new Token(Token.CHAR, i, line));
-//                    else
-//                        TokensList.Add(new Token(Token.COLON, i, line));
-//                }
-//                else if (c == ',')
-//                {
-//                    if (isIn)
-//                        TokensList.Add(new Token(Token.CHAR, i, line));
-//                    else
-//                        TokensList.Add(new Token(Token.COMMA, i, line));
-//                }
-//                else if (c == '.')
-//                {
-//                    if (isIn)
-//                        TokensList.Add(new Token(Token.CHAR, i, line));
-//                    else
-//                        TokensList.Add(new Token(Token.DOT, i, line));
-//                }
-//                else if (c == '\n')
-//                {
-//                    lines.Add(currentLine);
-//                    currentLine = "";
-//                    line++;
-//                }
-//                else if (Char.IsWhiteSpace(c))
-//                {
-//                    continue;
-//                }
-
-
-
-//            }
-
-
-//            return true;
-//        }
-
-
-
-
-//    }
-//}

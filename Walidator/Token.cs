@@ -28,7 +28,8 @@ namespace Walidator
         public const int CHAR = 20;
         public const int TRUE = 30;
         public const int FALSE = 40;
-        public const int NULL = 100;
+        public const int NULL = 50;
+        public const int EOF = 100;
 
        
         public Token(int Token, int Column, int Line)

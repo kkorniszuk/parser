@@ -1,0 +1,10 @@
+C:\Users\HP\source\repos\Walidator\Walidator\bin\Debug\Walidator.exe.config
+C:\Users\HP\source\repos\Walidator\Walidator\bin\Debug\Walidator.exe
+C:\Users\HP\source\repos\Walidator\Walidator\bin\Debug\Walidator.pdb
+C:\Users\HP\source\repos\Walidator\Walidator\obj\Debug\Walidator.MainForm.resources
+C:\Users\HP\source\repos\Walidator\Walidator\obj\Debug\Walidator.Properties.Resources.resources
+C:\Users\HP\source\repos\Walidator\Walidator\obj\Debug\Walidator.csproj.GenerateResource.cache
+C:\Users\HP\source\repos\Walidator\Walidator\obj\Debug\Walidator.csproj.CoreCompileInputs.cache
+C:\Users\HP\source\repos\Walidator\Walidator\obj\Debug\Walidator.exe
+C:\Users\HP\source\repos\Walidator\Walidator\obj\Debug\Walidator.pdb
+C:\Users\HP\source\repos\Walidator\Walidator\obj\Debug\Walidator.csprojAssemblyReference.cache

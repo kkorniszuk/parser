@@ -60,7 +60,9 @@ namespace Walidator
                     this.getNextToken();
                     this.jsonMainSchemaStructures();
                 } else if(this.tokens[index].GetToken() == Token.properties) {
-
+                    this.propertiesToken();
+                    this.getNextToken();
+                    this.jsonMainSchemaStructures();
                 } else if(this.tokens[index].GetToken() == Token.required) {
 
                 } else if(this.tokens[index].GetToken() == Token.definitions) {
@@ -133,7 +135,16 @@ namespace Walidator
             this.getNextToken();
             if(this.tokens[index].GetToken() == Token.colon) {
                 this.getNextToken();
-                if(this.)
+                if(this.tokens[index].GetToken() == Token.stringToken && this.isUrlString(this.tokens[index].GetValString())) {
+                    this.getNextToken();
+                    if(this.getCommaToken()) {
+                        // JSON schema must contain this field
+                        this.hasJsonSchema = true;
+                        return true;
+                    }
+                } else {
+                    // throw error - expected string with url
+                }
             } else {
                 // throw error - colon expected
             }
@@ -180,9 +191,33 @@ namespace Walidator
                 // throw error - colon expected
             }
         }
-        public bool properties()
+        public bool propertiesToken()
         {
-            return true;
+            if(this.Colon()) {
+                this.getNextToken();
+                if(this.tokens[index].GetToken() == Token.objectStart) {
+                    this.getNextToken();
+                    this.propertyToken();
+                    if(this.tokens[index].GetToken() == Token.objectEnd) {
+                        this.getNextToken();
+                        if(this.getCommaToken()) {
+                            return true;
+                        } else {
+                            // throw error - it should contain coma
+                        }
+                    } else {
+                        // throw error - expected ending of object
+                    }
+                } else {
+                    // throw error - opening of object expected
+                }
+            } else {
+                // throw error - comma expected
+            }
+        }
+
+        public bool propertyToken() {
+            
         }
         public bool description()
         {
@@ -227,6 +262,10 @@ namespace Walidator
             } else {    
                 // throw error - comma expexted
             }
+        }
+
+        public bool isUrlString(string url) {
+            return Uri.IsWellFormedUriString(url, UriKind.RelativeOrAbsolute);
         }
     }
 }

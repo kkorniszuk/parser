@@ -16,10 +16,26 @@ namespace Walidator
 
         string fileContent = string.Empty;
         string filePath = string.Empty;
-     
+
+        //bool a()
+        //{
+        //    return true;
+        //}
+        //bool b()
+        //{
+        //    return true;
+        //}
+        //bool c()
+        //{
+        //    return true;
+        //}
 
         public MainForm()
         {
+            //if (A() && B() && C())
+            //{
+            //    int a = 1;
+            //}
             InitializeComponent();
         }
 

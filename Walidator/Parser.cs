@@ -13,17 +13,44 @@ namespace Walidator
         private int currentToken;        //numer obecnie przetwarzanego tokenu
         private int index;              //index obecnie przetwarzanego tokeny
 
-        /*
-         * Całość wg gramatyki w docx 
-         */
+        private Token token;
         public Parser()
         {
             this.tokens = new List<Token>();
             this.currentToken = 0;
             this.index = 0;
+            this.token = new Token();
         }
 
-        
+        public int start() {
+            if (this.tokens[index] == this.token.objectStart) {
+                this.getNextToken();
+                this.jsonSchemaStructure();
+                if(this.tokens[index] == this.token.objectEnd) {
+                    // success
+                } else {
+                    // throw error
+                }
+            } else {
+                // throw error 
+            }
+        }
+
+        public int jsonSchemaStructure() {
+            if(this.tokens[index] == this.token.stringToken) {
+            
+            } else {
+                // throw error 
+            }
+        }
+
+        public void getNextToken() {
+            if (this.index < this.tokens.Count) {
+                this.index++;
+            } else {
+                // end of tokens 
+            }
+        }
 
         public bool id () {
 

@@ -86,22 +86,45 @@ namespace Walidator
             }
         }
 
+        public bool Colon()
+        {
+            bool retVal=false;
+            if (this.tokens[index].GetToken() == Token.colon)
+            {
+                this.getNextToken();
+                if (this.tokens[index].GetToken() == Token.WhiteSpace)
+                {
+                    retVal = true;      
+                }
+            }
+            return retVal;
+        }
+
         public bool idToken()
         {
            this.getNextToken();
-           if(this.tokens[index].GetToken() == Token.colon) {
+           if(Colon())
+            {
                this.getNextToken();
-               if(this.tokens[index].GetToken() == Token.stringToken) {
+               if(this.tokens[index].GetToken() == Token.stringToken)
+                {
                 this.getNextToken();
-                   if(this.getCommaToken()) {
+                   if(this.getCommaToken())
+                    {
                        return true;
-                   } else {
+                   }
+                    else
+                    {
                        // throw error - comma expected
                    }
-               } else {
+               }
+                else
+                {
                    // throw error - string excepted
                }
-           } else {
+           }
+            else
+            {
                // throw error - colon expected
            }
         }

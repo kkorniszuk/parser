@@ -14,85 +14,118 @@ namespace Walidator
         private int index;              //index obecnie przetwarzanego tokeny
 
         private Token token;
-        public Parser()
+        public Parser(List<Token> tokenList)
         {
             this.tokens = new List<Token>();
             this.currentToken = 0;
             this.index = 0;
-            this.token = new Token();
+            //this.token = new Token();
         }
 
-        public int start() {
-            if (this.tokens[index] == this.token.objectStart) {
+        public int start()
+        {
+            int retVal = 0;
+            if (this.tokens[index].GetToken() == Token.objectStart)
+            {
                 this.getNextToken();
                 this.jsonSchemaStructure();
-                if(this.tokens[index] == this.token.objectEnd) {
+                if (this.tokens[index].GetToken() == Token.objectEnd)
+                {
                     // success
-                } else {
+                }
+                else
+                {
                     // throw error
                 }
-            } else {
+            }
+            else
+            {
                 // throw error 
             }
+            return retVal;
         }
 
-        public int jsonSchemaStructure() {
-            if(this.tokens[index] == this.token.stringToken) {
-            
-            } else {
+        public int jsonSchemaStructure()
+        {
+            int retVal = 0;
+            if (this.tokens[index].GetToken() == Token.stringToken)
+            {
+
+            }
+            else
+            {
                 // throw error 
             }
+            return retVal;
         }
 
-        public void getNextToken() {
-            if (this.index < this.tokens.Count) {
+        public void getNextToken()
+        {
+            if (this.index < this.tokens.Count)
+            {
                 this.index++;
-            } else {
+            }
+            else
+            {
                 // end of tokens 
             }
         }
 
-        public bool id () {
-
+        public bool id()
+        {
+            return true;
         }
-        public bool schema () {
-
+        public bool schema()
+        {
+            return true;
         }
-        public bool  title  () {
-
+        public bool title()
+        {
+            return true;
         }
-        public bool type  () {
-
+        public bool type()
+        {
+            return true;
         }
-        public bool properties  () {
-
+        public bool properties()
+        {
+            return true;
         }
-        public bool description  () {
-
+        public bool description()
+        {
+            return true;
         }
-        public bool required () {
-
+        public bool required()
+        {
+            return true;
         }
-        public bool  minimum  () {
-
+        public bool minimum()
+        {
+            return true;
         }
-       public bool  maximum  () {
-
-       }
-        public bool minLength  () {
-
+        public bool maximum()
+        {
+            return true;
         }
-        public bool maxLength  () {
-
+        public bool minLength()
+        {
+            return true;
         }
-       public bool  enumToken  () {
-
-       }
-       public bool  definitions () {
-
-       }
-       public bool  refToken () {
-
-       }
+        public bool maxLength()
+        {
+            return true;
+        }
+        public bool enumToken()
+        {
+            return true;
+        }
+        public bool definitions()
+        {
+            return true;
+        }
+        public bool refToken()
+        {
+            return true;
+        }
     }
 }

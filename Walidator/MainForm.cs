@@ -109,7 +109,7 @@ namespace Walidator
         {
             List<Token> TokensList = new List<Token>();
             scanner l = new scanner();
-            Parser p = new Parser();
+            //Parser p = new Parser();
             bool failed = false;
             StringBuilder Tmp = new StringBuilder();
             failed = l.lexer(rtbInput.Text, ref TokensList);
@@ -131,10 +131,13 @@ namespace Walidator
         {
             List<Token> TokensList = new List<Token>();
             scanner l = new scanner();
-            Parser p = new Parser();
+            
             bool failed = false;
             StringBuilder Tmp = new StringBuilder();
             failed = l.lexer(rtbInput.Text, ref TokensList);
+
+            Parser p = new Parser(TokensList);
+
             foreach (var item in TokensList)
             {
                 Tmp.Append(item.GetToken().ToString());
@@ -147,7 +150,7 @@ namespace Walidator
 
             rtbResult.Text = Tmp.ToString();
             Tmp.Length = 0;
-            p.parse(TokensList);
+            //p.start();
             try
             {
 

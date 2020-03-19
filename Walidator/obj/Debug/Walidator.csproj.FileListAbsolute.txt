@@ -8,3 +8,12 @@ C:\Users\HP\source\repos\Walidator\Walidator\obj\Debug\Walidator.csproj.CoreComp
 C:\Users\HP\source\repos\Walidator\Walidator\obj\Debug\Walidator.exe
 C:\Users\HP\source\repos\Walidator\Walidator\obj\Debug\Walidator.pdb
 C:\Users\HP\source\repos\Walidator\Walidator\obj\Debug\Walidator.csprojAssemblyReference.cache
+D:\RepozytoriumGit\Kompilatory\parser\Walidator\obj\Debug\Walidator.MainForm.resources
+D:\RepozytoriumGit\Kompilatory\parser\Walidator\obj\Debug\Walidator.Properties.Resources.resources
+D:\RepozytoriumGit\Kompilatory\parser\Walidator\obj\Debug\Walidator.csproj.GenerateResource.cache
+D:\RepozytoriumGit\Kompilatory\parser\Walidator\obj\Debug\Walidator.csproj.CoreCompileInputs.cache
+D:\RepozytoriumGit\Kompilatory\parser\Walidator\obj\Debug\Walidator.exe
+D:\RepozytoriumGit\Kompilatory\parser\Walidator\obj\Debug\Walidator.pdb
+D:\RepozytoriumGit\Kompilatory\parser\Walidator\bin\Debug\Walidator.exe.config
+D:\RepozytoriumGit\Kompilatory\parser\Walidator\bin\Debug\Walidator.exe
+D:\RepozytoriumGit\Kompilatory\parser\Walidator\bin\Debug\Walidator.pdb

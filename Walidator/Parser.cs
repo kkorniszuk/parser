@@ -44,15 +44,15 @@ namespace Walidator
         public int jsonMainSchemaStructures() {
             int retVal = 0;
                 if(this.tokens[index].GetToken() == Token.id) {
-                    if(true) {
-
-                    } else {
-
-                    }
+                    this.idToken();
+                    this.getNextToken();
+                    this.jsonMainSchemaStructures();
                 } else if(this.tokens[index].GetToken() == Token.schema) {
                     
                 } else if(this.tokens[index].GetToken() == Token.title) {
-
+                    this.titleToken();
+                    this.getNextToken();
+                    this.jsonMainSchemaStructures();
                 } else if(this.tokens[index].GetToken() == Token.type) {
 
                 } else if(this.tokens[index].GetToken() == Token.properties) {
@@ -61,8 +61,9 @@ namespace Walidator
 
                 } else if(this.tokens[index].GetToken() == Token.definitions) {
 
-                } else if (  true ) {
-
+                } else if(this.tokens[index].GetToken() == Token.objectEnd && index == this.tokens.Count - 1) {
+                    // that's end of file - success 
+                    return true;
                 } else {
                     // throw error > symbol not found 
                 }
@@ -87,7 +88,11 @@ namespace Walidator
            if(this.tokens[index].GetToken == Token.colon) {
                this.getNextToken();
                if(this.tokens[index].GetToken == Token.stringToken) {
-                   return true;
+                   if(this.getCommaToken()) {
+                       return true;
+                   } else {
+                       // throw error - comma expected
+                   }
                } else {
                    // throw error - string excepted
                }
@@ -146,6 +151,13 @@ namespace Walidator
         public bool refToken()
         {
             return true;
+        }
+        public bool getCommaToken() {
+            if(this.tokens[index].GetToken() == Token.comma ) {
+                return true;
+            } else {    
+                // throw error - comma expexted
+            }
         }
     }
 }

@@ -13,6 +13,9 @@ namespace Walidator
         public int token;       //token
         public int lineNumber;        //number line 
         public int charNumber;     //char number from beggining
+        public string val;
+
+        
 
         public const int jsonFile = 0;
         public const int arrayStart = 1;//[
@@ -25,18 +28,40 @@ namespace Walidator
         public const int dot = 8;//.
         public const int number = 9;
         public const int END = 10;
-        public const int CHAR = 20;
-        public const int TRUE = 30;
+        public const int stringToken = 20;
+
+        public const int WhiteSpace = 30; //spacja
+        public const int NewLine = 31;//nowa linia 
+
+        public const int TRUE = 36;
         public const int FALSE = 40;
-        public const int NULL = 50;
-        public const int EOF = 100;
+        public const int NULL = 100;
+
+        public const int id = 51;
+        public const int schema= 52;
+        public const int title= 53;
+        public const int type = 54;
+        public const int properties = 55;
+        public const int description = 56;
+        public const int required = 57;
+        public const int minimum = 58;
+        public const int maximum = 59;
+        public const int minLength﻿ = 60;
+        public const int definitions﻿ = 61;
+        public const int maxLength﻿ = 62;
+        public const int enumToken = 63;
+        public const int refToken = 64;
+                    
+
+
 
        
-        public Token(int Token, int Column, int Line)
+        public Token(int Token, int Column, int Line, string valString)
         {
             this.token = Token;
             this.charNumber = Column;
             this.lineNumber = Line;
+            this.val = valString;
         }
 
         public int GetToken()
@@ -54,6 +79,12 @@ namespace Walidator
             return this.charNumber;
         }
 
+        public string GetValString()
+        {
+            return this.val;
+        }
+
+        //prawdopodobnie zbędne
         public override string ToString()
         {
             switch (this.token)

@@ -97,20 +97,60 @@ namespace Walidator
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Waliduj();
+            Waliduj_1();
         
         }
 
-        private void Waliduj()
+        /// <summary>
+        /// Funkcja sprawdzająca zwraca wartości int dla kazdego tokena(w postaci string) - funkcja tymczsowa
+        /// 
+        /// </summary>
+        private void Waliduj_1()
         {
             List<Token> TokensList = new List<Token>();
             scanner l = new scanner();
             Parser p = new Parser();
             bool failed = false;
+            StringBuilder Tmp = new StringBuilder();
+            failed = l.lexer(rtbInput.Text, ref TokensList);
+            foreach (var item in TokensList)
+            {
+                Tmp.Append(item.GetToken().ToString());
+                Tmp.Append("||");
+                if (item.GetToken() == Token.NewLine)
+                {
+                    Tmp.Append('\n');
+                }
+            }
+
+            rtbResult.Text = Tmp.ToString();
+            Tmp.Length = 0;
+
+        }
+            private void Waliduj()
+        {
+            List<Token> TokensList = new List<Token>();
+            scanner l = new scanner();
+            Parser p = new Parser();
+            bool failed = false;
+            StringBuilder Tmp = new StringBuilder();
+            failed = l.lexer(rtbInput.Text, ref TokensList);
+            foreach (var item in TokensList)
+            {
+                Tmp.Append(item.GetToken().ToString());
+                Tmp.Append("||");
+                if (item.GetToken() == Token.NewLine)
+                {
+                    Tmp.Append('\n');
+                }
+            }
+
+            rtbResult.Text = Tmp.ToString();
+            Tmp.Length = 0;
+            p.parse(TokensList);
             try
             {
-                failed = l.lexer(rtbInput.Text, ref TokensList);
-                p.parse(TokensList);
+
             }
             catch (JSONException pje)
             {
@@ -131,17 +171,6 @@ namespace Walidator
                 Console.Write(t);
             }
 #endif
-            //////////\\\
-            //Parser Walid = new Parser(tbInput.Text.ToString());
-            //Walid.stateBeginValue();
-            //StringBuilder AllError = new StringBuilder();
-            //foreach (var item in Walid.error)
-            //{
-            //    AllError.Append(String.Format("Error(line {0}): {1}\n",item.getKodSymbolu(),item.getOpis()));
-            //}
-            //MessageBox.Show(String.Format("Liczba błędów: {0} \n{1} ",Walid.error.Count,AllError.ToString()));//; Walid.stateBeginValue().ToString());
         }
-
-
     }
 }

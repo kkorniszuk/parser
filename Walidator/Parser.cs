@@ -10,6 +10,8 @@ namespace Walidator
     public class Parser
     {
         public List<Token> tokens;
+
+        private bool hasJsonSchema = false;
         private int currentToken;        //numer obecnie przetwarzanego tokenu
         private int index;              //index obecnie przetwarzanego tokeny
 
@@ -25,36 +27,45 @@ namespace Walidator
         public int start()
         {
             int retVal = 0;
-            if (this.tokens[index].GetToken() == Token.objectStart)
-            {
+            if (this.tokens[index].GetToken() == Token.objectStart) {
                 this.getNextToken();
                 this.jsonMainSchemaStructures();
-                if(this.tokens[index].GetToken() == Token.objectEnd) {
-                    // success
+                if(hasJsonSchema) {
+                  // success
+                } else {
+                    // throw error > not $schema field found 
                 }
-                else
-                {
-                    // throw error
-                }
-            }
-            else
-            {
-                // throw error 
+            } else {
+                // throw error > not starting { found 
             }
             return retVal;
         }
 
         public int jsonMainSchemaStructures() {
             int retVal = 0;
-            if(this.tokens[index].GetToken() == Token.stringToken) {
                 if(this.tokens[index].GetToken() == Token.id) {
+                    if(true) {
 
-                } else if(true) {
+                    } else {
+
+                    }
+                } else if(this.tokens[index].GetToken() == Token.schema) {
                     
+                } else if(this.tokens[index].GetToken() == Token.title) {
+
+                } else if(this.tokens[index].GetToken() == Token.type) {
+
+                } else if(this.tokens[index].GetToken() == Token.properties) {
+
+                } else if(this.tokens[index].GetToken() == Token.required) {
+
+                } else if(this.tokens[index].GetToken() == Token.definitions) {
+
+                } else if (  true ) {
+
+                } else {
+                    // throw error > symbol not found 
                 }
-            } else {
-                // throw error 
-            }
             return retVal;
         }
 
@@ -70,9 +81,19 @@ namespace Walidator
             }
         }
 
-        public bool id()
+        public bool idToken()
         {
-            return true;
+           this.getNextToken();
+           if(this.tokens[index].GetToken == Token.colon) {
+               this.getNextToken();
+               if(this.tokens[index].GetToken == Token.stringToken) {
+                   return true;
+               } else {
+                   // throw error - string excepted
+               }
+           } else {
+               // throw error - colon expected
+           }
         }
         public bool schema()
         {

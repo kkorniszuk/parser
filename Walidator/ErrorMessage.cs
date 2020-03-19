@@ -15,6 +15,12 @@ namespace Walidator
                 + "\n" + getLine(line);
         }
 
+        public static string errorMsg(int line, string reason)
+        {
+            return "Failed in line:" + line + " ! " + reason
+                + "\n" + getLine(line);
+        }
+
         public static string errorMsg(Token t, string expected, int i)
         {
             return "Failed in line:" + t.GetLine() + " on char:"

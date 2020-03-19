@@ -27,50 +27,76 @@ namespace Walidator
         public int start()
         {
             int retVal = 0;
-            if (this.tokens[index].GetToken() == Token.objectStart) {
+            if (this.tokens[index].GetToken() == Token.objectStart)
+            {
                 this.getNextToken();
                 this.jsonMainSchemaStructures();
-                if(hasJsonSchema) {
-                  // success
-                } else {
+                if (hasJsonSchema)
+                {
+                    // success
+                }
+                else
+                {
                     // throw error > not $schema field found 
                 }
-            } else {
+            }
+            else
+            {
                 // throw error > not starting { found 
             }
             return retVal;
         }
 
-        public int jsonMainSchemaStructures() {
+        public int jsonMainSchemaStructures()
+        {
             int retVal = 0;
-                if(this.tokens[index].GetToken() == Token.id) {
-                    this.idToken();
-                    this.getNextToken();
-                    this.jsonMainSchemaStructures();
-                } else if(this.tokens[index].GetToken() == Token.schema) {
-                    this.schemaToken();
-                    this.getNextToken();
-                    this.jsonMainSchemaStructures();
-                } else if(this.tokens[index].GetToken() == Token.title) {
-                    this.titleToken();
-                    this.getNextToken();
-                    this.jsonMainSchemaStructures();
-                } else if(this.tokens[index].GetToken() == Token.type) {
-                    this.typeToken();
-                    this.getNextToken();
-                    this.jsonMainSchemaStructures();
-                } else if(this.tokens[index].GetToken() == Token.properties) {
+            if (this.tokens[index].GetToken() == Token.id)
+            {
+                this.idToken();
+                this.getNextToken();
+                this.jsonMainSchemaStructures();
+            }
+            else if (this.tokens[index].GetToken() == Token.schema)
+            {
+                this.schemaToken();
+                this.getNextToken();
+                this.jsonMainSchemaStructures();
+            }
+            else if (this.tokens[index].GetToken() == Token.title)
+            {
+                this.titleToken();
 
-                } else if(this.tokens[index].GetToken() == Token.required) {
+                this.getNextToken();
+                this.jsonMainSchemaStructures();
+            }
+            else if (this.tokens[index].GetToken() == Token.type)
+            {
+                this.typeToken();
+                this.getNextToken();
+                this.jsonMainSchemaStructures();
+            }
+            else if (this.tokens[index].GetToken() == Token.properties)
+            {
 
-                } else if(this.tokens[index].GetToken() == Token.definitions) {
+            }
+            else if (this.tokens[index].GetToken() == Token.required)
+            {
 
-                } else if(this.tokens[index].GetToken() == Token.objectEnd && index == this.tokens.Count - 1) {
-                    // that's end of file - success 
-                    return true;
-                } else {
-                    // throw error > symbol not found 
-                }
+            }
+            else if (this.tokens[index].GetToken() == Token.definitions)
+            {
+
+            }
+            else if (this.tokens[index].GetToken() == Token.objectEnd && index == this.tokens.Count - 1)
+            {
+                // that's end of file - success 
+
+            }
+            else
+            {
+
+                // throw error > symbol not found 
+            }
             return retVal;
         }
 
@@ -86,99 +112,153 @@ namespace Walidator
             }
         }
 
+
+        public bool Comma()
+        {
+            bool retVal = false;
+
+            this.getNextToken();
+            if (this.tokens[index].GetToken() == Token.comma)
+            {
+                retVal = true;
+            }
+            else
+            {
+                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found comma!"));
+            }
+
+            return retVal;
+        }
+
+        public bool WhiteSpace()
+        {
+            bool retVal = true;
+
+            this.getNextToken();
+            if (this.tokens[index].GetToken() == Token.WhiteSpace)
+            {
+                retVal = false;
+            }
+
+            return retVal;
+        }
+
         public bool Colon()
         {
-            bool retVal=false;
+            bool retVal = false;
+
+            this.getNextToken();
             if (this.tokens[index].GetToken() == Token.colon)
             {
                 this.getNextToken();
                 if (this.tokens[index].GetToken() == Token.WhiteSpace)
                 {
-                    retVal = true;      
+                    bool Tmp = true;
+                    while (Tmp)
+                    {
+                        Tmp = WhiteSpace();
+                    }
+                    retVal = true;
                 }
+                else
+                {
+                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found WhiteSpace!"));
+                }
+            }
+            else
+            {
+                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found Colon!"));
             }
             return retVal;
         }
 
         public bool idToken()
         {
-           this.getNextToken();
-           if(Colon())
+            bool retVal = false;
+            if (Colon())
             {
-               this.getNextToken();
-               if(this.tokens[index].GetToken() == Token.stringToken)
-                {
                 this.getNextToken();
-                   if(this.getCommaToken())
+                if (this.tokens[index].GetToken() == Token.stringToken)
+                {
+                    this.getNextToken();
+                    if (Comma())
                     {
-                       return true;
-                   }
-                    else
-                    {
-                       // throw error - comma expected
-                   }
-               }
+                        retVal = true;
+                    }
+                }
                 else
                 {
-                   // throw error - string excepted
-               }
-           }
-            else
-            {
-               // throw error - colon expected
-           }
+                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found string!"));
+                }
+            }
+            return retVal;
         }
         public bool schemaToken()
         {
-            this.getNextToken();
-            if(this.tokens[index].GetToken() == Token.colon) {
+            bool retVal = false;
+            if (Colon())
+            {
                 this.getNextToken();
-                if(this.)
-            } else {
-                // throw error - colon expected
+                if (this.tokens[index].GetToken() == Token.stringToken)
+                {
+                    if (Comma())
+                    {
+                        retVal = true;
+                    }
+                }
+                else
+                {
+                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found String"));
+                }
             }
+            return retVal;
         }
         public bool titleToken()
-        {   
-            this.getNextToken();
-            if(this.tokens[index].GetToken() == Token.colon) {
+        {
+            bool retVal = false;
+            if (Colon())
+            {
                 this.getNextToken();
-                if(this.tokens[index].GetToken() == Token.stringToken) {
-                    this.getNextToken();
-                    if(this.getCommaToken()) {
-                        return true;
+                if (this.tokens[index].GetToken() == Token.stringToken)
+                {
+                    if (Comma())
+                    {
+                        retVal = true;
                     }
-                } else {
-                    // throw error = string expexted
                 }
-            } else {
-                // throw error - colon expected
+                else
+                {
+                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found string!"));
+                }
             }
+            return retVal;
         }
         public bool typeToken()
         {
-            this.getNextToken();
-            if(this.tokens[index].GetToken() == Token.colon) {
+            bool retVal = false;
+            if (Colon())
+            {
                 this.getNextToken();
-                if(this.tokens[index].GetToken() == Token.stringToken && 
+                if (this.tokens[index].GetToken() == Token.stringToken &&
                    (this.tokens[index].GetValString() == "object" ||
                    this.tokens[index].GetValString() == "string" ||
                    this.tokens[index].GetValString() == "number" ||
                    this.tokens[index].GetValString() == "array" ||
                    this.tokens[index].GetValString() == "boolean" ||
-                   this.tokens[index].GetValString() == "null")) {
-                   this.getNextToken();
-                   if(this.getCommaToken()) {
-                       return true;
-                   } else {
-                       // throw error - comma expected
-                   }
-                } else {
-                    // throw error - string expected
+                   this.tokens[index].GetValString() == "null"))
+                {
+                    if (Comma())
+                    {
+                        retVal = true;
+                    }
+
                 }
-            } else {
-                // throw error - colon expected
+                else
+                {
+                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found string!"));
+                }
             }
+            return retVal;
         }
         public bool properties()
         {
@@ -220,13 +300,13 @@ namespace Walidator
         {
             return true;
         }
-        public bool getCommaToken() {
-            // I will add more code later - it should throw an error on last line
-            if(this.tokens[index].GetToken() == Token.comma ) {
-                return true;
-            } else {    
-                // throw error - comma expexted
-            }
-        }
+        //public bool getCommaToken() {
+        //    // I will add more code later - it should throw an error on last line
+        //    if(this.tokens[index].GetToken() == Token.comma ) {
+        //        return true;
+        //    } else {    
+        //        // throw error - comma expexted
+        //    }
+        //}
     }
 }

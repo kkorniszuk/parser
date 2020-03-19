@@ -28,9 +28,8 @@ namespace Walidator
             if (this.tokens[index].GetToken() == Token.objectStart)
             {
                 this.getNextToken();
-                this.jsonSchemaStructure();
-                if (this.tokens[index].GetToken() == Token.objectEnd)
-                {
+                this.jsonMainSchemaStructures();
+                if(this.tokens[index].GetToken() == Token.objectEnd) {
                     // success
                 }
                 else
@@ -45,15 +44,15 @@ namespace Walidator
             return retVal;
         }
 
-        public int jsonSchemaStructure()
-        {
+        public int jsonMainSchemaStructures() {
             int retVal = 0;
-            if (this.tokens[index].GetToken() == Token.stringToken)
-            {
+            if(this.tokens[index].GetToken() == Token.stringToken) {
+                if(this.tokens[index].GetToken() == Token.id) {
 
-            }
-            else
-            {
+                } else if(true) {
+                    
+                }
+            } else {
                 // throw error 
             }
             return retVal;

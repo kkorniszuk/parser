@@ -48,13 +48,17 @@ namespace Walidator
                     this.getNextToken();
                     this.jsonMainSchemaStructures();
                 } else if(this.tokens[index].GetToken() == Token.schema) {
-                    
+                    this.schemaToken();
+                    this.getNextToken();
+                    this.jsonMainSchemaStructures();
                 } else if(this.tokens[index].GetToken() == Token.title) {
                     this.titleToken();
                     this.getNextToken();
                     this.jsonMainSchemaStructures();
                 } else if(this.tokens[index].GetToken() == Token.type) {
-
+                    this.typeToken();
+                    this.getNextToken();
+                    this.jsonMainSchemaStructures();
                 } else if(this.tokens[index].GetToken() == Token.properties) {
 
                 } else if(this.tokens[index].GetToken() == Token.required) {
@@ -85,9 +89,10 @@ namespace Walidator
         public bool idToken()
         {
            this.getNextToken();
-           if(this.tokens[index].GetToken == Token.colon) {
+           if(this.tokens[index].GetToken() == Token.colon) {
                this.getNextToken();
-               if(this.tokens[index].GetToken == Token.stringToken) {
+               if(this.tokens[index].GetToken() == Token.stringToken) {
+                this.getNextToken();
                    if(this.getCommaToken()) {
                        return true;
                    } else {
@@ -100,17 +105,57 @@ namespace Walidator
                // throw error - colon expected
            }
         }
-        public bool schema()
+        public bool schemaToken()
         {
-            return true;
+            this.getNextToken();
+            if(this.tokens[index].GetToken() == Token.colon) {
+                this.getNextToken();
+                if(this.)
+            } else {
+                // throw error - colon expected
+            }
         }
-        public bool title()
-        {
-            return true;
+        public bool titleToken()
+        {   
+            this.getNextToken();
+            if(this.tokens[index].GetToken() == Token.colon) {
+                this.getNextToken();
+                if(this.tokens[index].GetToken() == Token.stringToken) {
+                    this.getNextToken();
+                    if(this.getCommaToken()) {
+                        return true;
+                    }
+                } else {
+                    // throw error = string expexted
+                }
+            } else {
+                // throw error - colon expected
+            }
         }
-        public bool type()
+        public bool typeToken()
         {
-            return true;
+            this.getNextToken();
+            if(this.tokens[index].GetToken() == Token.colon) {
+                this.getNextToken();
+                if(this.tokens[index].GetToken() == Token.stringToken && 
+                   (this.tokens[index].GetValString() == "object" ||
+                   this.tokens[index].GetValString() == "string" ||
+                   this.tokens[index].GetValString() == "number" ||
+                   this.tokens[index].GetValString() == "array" ||
+                   this.tokens[index].GetValString() == "boolean" ||
+                   this.tokens[index].GetValString() == "null")) {
+                   this.getNextToken();
+                   if(this.getCommaToken()) {
+                       return true;
+                   } else {
+                       // throw error - comma expected
+                   }
+                } else {
+                    // throw error - string expected
+                }
+            } else {
+                // throw error - colon expected
+            }
         }
         public bool properties()
         {
@@ -153,6 +198,7 @@ namespace Walidator
             return true;
         }
         public bool getCommaToken() {
+            // I will add more code later - it should throw an error on last line
             if(this.tokens[index].GetToken() == Token.comma ) {
                 return true;
             } else {    

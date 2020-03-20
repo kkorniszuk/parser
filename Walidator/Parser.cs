@@ -531,8 +531,20 @@ namespace Walidator
             {
                 if(String())
                 {
-                   CheckStartOfObject();
-                   // check type and properties
+                    CheckStartOfObject();
+                    getNextToken();
+                    if(tokens[index].GetToken() == token.type) 
+                    {
+                        typeToken();
+                    }
+                    else if (tokens[index].GetToken() == token.properties)
+                    {
+                        propertiesToken();
+                    }
+                    else 
+                    {
+                        throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected keywords: type or properties"));
+                    }
                     ObjectEnd();
                 }
                 else 
@@ -547,6 +559,8 @@ namespace Walidator
             }
             return retVal;
         }
+
+
         public bool refToken()
         {
             // current token is ref element

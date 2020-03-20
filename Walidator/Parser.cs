@@ -22,7 +22,6 @@ namespace Walidator
             this.tokens = new List<Token>();
             this.currentToken = 0;
             this.index = 0;
-            //this.token = new Token();
         }
 
         public int start()
@@ -30,57 +29,51 @@ namespace Walidator
             int retVal = 0;
             if (this.tokens[index].GetToken() == Token.objectStart)
             {
-                this.getNextToken();
                 this.jsonMainSchemaStructures();
                 if (hasJsonSchema)
                 {
-                    // success
+                    // success - file is valid
                 }
                 else
                 {
-                    // throw error > not $schema field found 
+                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "JSON schema not valid - $schema field is required."));
                 }
             }
             else
             {
-                // throw error > not starting { found 
+                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Starting symbol } required."));
             }
             return retVal;
         }
 
         public int jsonMainSchemaStructures()
         {
+            this.getNextToken();
             int retVal = 0;
 
             if (this.tokens[index].GetToken() == Token.id)
             {
                 this.idToken();
-                this.getNextToken();
                 this.jsonMainSchemaStructures();
             }
             else if (this.tokens[index].GetToken() == Token.schema)
             {
                 this.schemaToken();
-                this.getNextToken();
                 this.jsonMainSchemaStructures();
             }
             else if (this.tokens[index].GetToken() == Token.title)
             {
                 this.titleToken();
-
-                this.getNextToken();
                 this.jsonMainSchemaStructures();
             }
             else if (this.tokens[index].GetToken() == Token.type)
             {
                 this.typeToken();
-                this.getNextToken();
                 this.jsonMainSchemaStructures();
             }
             else if (this.tokens[index].GetToken() == Token.properties)
             {
                 this.propertiesToken();
-                this.getNextToken();
                 this.jsonMainSchemaStructures();
             }
             else if (this.tokens[index].GetToken() == Token.required)
@@ -90,17 +83,17 @@ namespace Walidator
             }
             else if (this.tokens[index].GetToken() == Token.definitions)
             {
-
+                this.definitionsToken();
+                this.jsonMainSchemaStructures();
             }
             else if (this.tokens[index].GetToken() == Token.objectEnd && index == this.tokens.Count - 1)
             {
-                // that's end of file - success 
-
+                // not sure what type should it be 
+                retVal = true;
             }
             else
             {
-
-                // throw error > symbol not found 
+                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Symbol not valid."));
             }
             return retVal;
         }
@@ -504,10 +497,54 @@ namespace Walidator
             }
             return retVal;
         }
-        public bool definitions()
+        public bool definitionsToken()
         {
             bool retVal = false;
+            CheckStartOfObject();
+            definitionToken();
+            if(ObjectEnd()) 
+            {
+                if(Comma()) 
+                {
+                    return true;
+                }
+                else 
+                {
+                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected coma"));
+                }
+            }
+            else 
+            {
+                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected end of object"));
+            }
+            return retVal;
+        }
 
+        public bool definitionToken() {
+            bool retVal = false;
+            if(checkNextTokenValue().GetToken() == token.objectEnd) 
+            {
+                // it should return true - next token will be end of object
+                retVal = true;
+            }
+            else if(checkNextTokenValue().GetToken() == token.stringToken) 
+            {
+                if(String())
+                {
+                   CheckStartOfObject();
+                   // check type and properties
+                    ObjectEnd();
+                }
+                else 
+                {
+                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected string token"));
+                }
+                definitionToken();
+            }
+            else 
+            {
+                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected property name or end of object. "));
+            }
             return retVal;
         }
         public bool refToken()
@@ -529,6 +566,41 @@ namespace Walidator
             else
             {
                 throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "String expected!"));
+            }
+            return retVal;
+        }
+
+    // only take value of next token without changing current index
+        public Token checkNextTokenValue()
+        {
+            try
+            {
+                return tokens[index + 1];                
+            }
+            catch (System.Exception)
+            {
+                throw SystemException;
+            }
+        }
+
+        public bool CheckStartOfObject() 
+        {
+            bool retVal = false;
+
+            if(Colon()) 
+            {
+                if(ObjectStart()) 
+                {
+                    retVal = true;
+                }
+                else 
+                {
+                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected start of object"));    
+                }
+            }
+            else 
+            {
+                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected colon"));    
             }
             return retVal;
         }

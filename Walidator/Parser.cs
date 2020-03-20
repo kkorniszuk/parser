@@ -15,6 +15,7 @@ namespace Walidator
         private bool hasJsonSchema = false;
         private int currentToken;        //numer obecnie przetwarzanego tokenu
         private int index;              //index obecnie przetwarzanego tokeny
+        private int iterationJsonMSS;  // iteration jsonMainSchemaStructures()
 
         private Token token;
         public Parser(List<Token> tokenList)
@@ -22,78 +23,94 @@ namespace Walidator
             this.tokens = new List<Token>();
             this.currentToken = 0;
             this.index = 0;
+            //this.token = new Token();
         }
 
         public int start()
         {
             int retVal = 0;
-            if (this.tokens[index].GetToken() == Token.objectStart)
+          
+            //pomiń spacje
+            if (ObjectStart())
             {
+                //pomiń spacje
                 this.jsonMainSchemaStructures();
                 if (hasJsonSchema)
                 {
-                    // success - file is valid
+                    // success
                 }
                 else
                 {
-                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "JSON schema not valid - $schema field is required."));
+                    // throw error > not $schema field found 
                 }
             }
             else
             {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Starting symbol } required."));
+                // throw error > not starting { found 
             }
             return retVal;
         }
 
         public int jsonMainSchemaStructures()
         {
-            this.getNextToken();
             int retVal = 0;
+            iterationJsonMSS++;
+
+            //this.getNextToken();
+            if(iterationJsonMSS>1)
+            {
+                Comma();
+            }
+            
 
             if (this.tokens[index].GetToken() == Token.id)
             {
+                this.getNextToken();
                 this.idToken();
                 this.jsonMainSchemaStructures();
             }
             else if (this.tokens[index].GetToken() == Token.schema)
             {
+                this.getNextToken();
                 this.schemaToken();
                 this.jsonMainSchemaStructures();
             }
             else if (this.tokens[index].GetToken() == Token.title)
             {
+                this.getNextToken();
                 this.titleToken();
                 this.jsonMainSchemaStructures();
             }
             else if (this.tokens[index].GetToken() == Token.type)
             {
+                this.getNextToken();
                 this.typeToken();
                 this.jsonMainSchemaStructures();
             }
             else if (this.tokens[index].GetToken() == Token.properties)
             {
+                this.getNextToken();
                 this.propertiesToken();
                 this.jsonMainSchemaStructures();
             }
             else if (this.tokens[index].GetToken() == Token.required)
             {
-
+                this.getNextToken();
 
             }
             else if (this.tokens[index].GetToken() == Token.definitions)
             {
-                this.definitionsToken();
-                this.jsonMainSchemaStructures();
+                this.getNextToken();
             }
             else if (this.tokens[index].GetToken() == Token.objectEnd && index == this.tokens.Count - 1)
             {
-                // not sure what type should it be 
-                retVal = true;
+                // that's end of file - success 
+
             }
             else
             {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Symbol not valid."));
+
+                // throw error > symbol not found 
             }
             return retVal;
         }
@@ -114,9 +131,9 @@ namespace Walidator
         {
             bool retVal = false;
 
-            this.getNextToken();
             if (this.tokens[index].GetToken() == Token.stringToken)
             {
+                this.getNextToken();
                 retVal = true;
             }
             else
@@ -131,10 +148,10 @@ namespace Walidator
         public bool Comma()
         {
             bool retVal = false;
-
-            this.getNextToken();
+            
             if (this.tokens[index].GetToken() == Token.comma)
             {
+                this.getNextToken();
                 retVal = true;
             }
             else
@@ -146,13 +163,18 @@ namespace Walidator
         }
 
 
+
         public bool isUrlString()
         {
-            this.getNextToken();
+            
             bool retVal = Uri.IsWellFormedUriString(tokens[index].GetValString(), UriKind.RelativeOrAbsolute);
             if (!retVal)
             {
                 throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found Url!"));
+            }
+            else
+            {
+                getNextToken();
             }
             return retVal;
         }
@@ -160,12 +182,11 @@ namespace Walidator
         public bool ObjectStart()
         {
             bool retVal = false;
-            this.getNextToken();
-
-
+            
             if (this.tokens[index].GetToken() == Token.objectStart)
             {
                 retVal = true;
+                this.getNextToken();
             }
             else
             {
@@ -177,11 +198,10 @@ namespace Walidator
         public bool ObjectEnd()
         {
             bool retVal = false;
-            this.getNextToken();
-
 
             if (this.tokens[index].GetToken() == Token.objectStart)
             {
+                this.getNextToken();
                 retVal = true;
             }
             else
@@ -194,12 +214,13 @@ namespace Walidator
         public bool ArrayStart()
         {
             bool retVal = false;
-            this.getNextToken();
-
+            
 
             if (this.tokens[index].GetToken() == Token.arrayStart)
             {
                 retVal = true;
+                this.getNextToken();
+
             }
             else
             {
@@ -211,12 +232,11 @@ namespace Walidator
         public bool ArrayEnd()
         {
             bool retVal = false;
-            this.getNextToken();
-
-
+            
             if (this.tokens[index].GetToken() == Token.arrayEnd)
             {
                 retVal = true;
+                this.getNextToken();
             }
             else
             {
@@ -227,12 +247,12 @@ namespace Walidator
 
         public bool WhiteSpace()
         {
-            bool retVal = true;
+            bool retVal = false;
 
-            this.getNextToken();
             if (this.tokens[index].GetToken() == Token.WhiteSpace)
             {
-                retVal = false;
+                this.getNextToken();
+                retVal = true;
             }
 
             return retVal;
@@ -241,10 +261,10 @@ namespace Walidator
         public bool Number()
         {
             bool retVal = true;
-
-            this.getNextToken();
+          
             if (this.tokens[index].GetToken() == Token.number)
             {
+                this.getNextToken();
                 retVal = false;
             }
 
@@ -255,12 +275,12 @@ namespace Walidator
         {
             bool retVal = false;
 
-            this.getNextToken();
             if (this.tokens[index].GetToken() == Token.colon)
             {
                 this.getNextToken();
                 if (this.tokens[index].GetToken() == Token.WhiteSpace)
                 {
+                    this.getNextToken();
                     bool Tmp = true;
                     while (Tmp)
                     {
@@ -283,7 +303,7 @@ namespace Walidator
         public bool idToken()
         {
             bool retVal = false;
-            if (Colon() && String() && Comma())
+            if (Colon() && String())
             {
                 retVal = true;
             }
@@ -293,12 +313,10 @@ namespace Walidator
         public bool schemaToken()
         {
             bool retVal = false;
-            if (Colon() && String() && isUrlString() && Comma())
+            if (Colon() && String() && isUrlString())
             {
-
                 this.hasJsonSchema = true;
                 retVal = true;
-
             }
             return retVal;
         }
@@ -306,37 +324,64 @@ namespace Walidator
         public bool titleToken()
         {
             bool retVal = false;
-            if (Colon() && String() && Comma())
+            if (Colon() && String())
             {
                 retVal = true;
             }
             return retVal;
         }
 
+        //"object" || "string" || "number" || "array" || "boolean" ||"null"
+        public bool CompareStringwithItemArrayStringType(string parametr)
+        {
+            bool retVal = false;
+            string[] tmpArray = { "object" , "string" , "number" , "array" , "boolean" , "null" };
+            for (int k = 0; k < tmpArray.Length; k++)
+            {
+                if (parametr == tmpArray[k])
+                {
+                    retVal = true;
+                }
+            }
+
+
+            return retVal;
+        }
+
         public bool typeToken()
         {
+            int itterationTypeToken = 0;
             bool retVal = false;
             if (Colon())
             {
-                this.getNextToken();
-                if (this.tokens[index].GetToken() == Token.stringToken &&
-                   (this.tokens[index].GetValString() == "object" ||
-                   this.tokens[index].GetValString() == "string" ||
-                   this.tokens[index].GetValString() == "number" ||
-                   this.tokens[index].GetValString() == "array" ||
-                   this.tokens[index].GetValString() == "boolean" ||
-                   this.tokens[index].GetValString() == "null"))
+                bool tmp=true;
+                while (tmp)
                 {
-                    if (Comma())
+                    itterationTypeToken++;
+                    if (itterationTypeToken > 1)
                     {
-                        retVal = true;
+                        Comma();
+                    }
+                    if (String())
+                    {
+                        string tmpS = this.tokens[index].GetValString();
+                        if (String() && (CompareStringwithItemArrayStringType(tmpS)))
+                        {
+                            retVal = true;
+                        }
+                        else
+                        {
+                            throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Incorrect type!"));
+                        }
+                    }
+                    else
+                    {
+                        tmp = false;
                     }
 
                 }
-                else
-                {
-                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found string!"));
-                }
+                
+               
             }
             return retVal;
         }
@@ -345,19 +390,30 @@ namespace Walidator
             bool retVal = false;
             if (Colon() && ObjectStart())
             {
-                if (String() && Colon())
+                bool tmp = true;
+                int iterrationObjectProperties = 0;
+                while (tmp)
                 {
-                    bool tmp = this.propertyToken();
-                    while (tmp)
+                    iterrationObjectProperties++;
+
+                    if (iterrationObjectProperties > 1)
                     {
-                        tmp = this.propertyToken();
-                        retVal = true;
+                        Comma();
                     }
+                    if (String() && Colon())
+                    {
+                        if (propertyToken())
+                        {
+                            retVal = true;
+                            if (ObjectEnd)
+                            {
+
+                            }
+                        }
+                    }
+
                 }
-                else
-                {
-                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found any object in properties!"));
-                }
+               
 
             }
             return retVal;
@@ -497,54 +553,10 @@ namespace Walidator
             }
             return retVal;
         }
-        public bool definitionsToken()
+        public bool definitions()
         {
             bool retVal = false;
-            CheckStartOfObject();
-            definitionToken();
-            if(ObjectEnd()) 
-            {
-                if(Comma()) 
-                {
-                    return true;
-                }
-                else 
-                {
-                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected coma"));
-                }
-            }
-            else 
-            {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected end of object"));
-            }
-            return retVal;
-        }
 
-        public bool definitionToken() {
-            bool retVal = false;
-            if(checkNextTokenValue().GetToken() == token.objectEnd) 
-            {
-                // it should return true - next token will be end of object
-                retVal = true;
-            }
-            else if(checkNextTokenValue().GetToken() == token.stringToken) 
-            {
-                if(String())
-                {
-                   CheckStartOfObject();
-                   // check type and properties
-                    ObjectEnd();
-                }
-                else 
-                {
-                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected string token"));
-                }
-                definitionToken();
-            }
-            else 
-            {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected property name or end of object. "));
-            }
             return retVal;
         }
         public bool refToken()
@@ -566,41 +578,6 @@ namespace Walidator
             else
             {
                 throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "String expected!"));
-            }
-            return retVal;
-        }
-
-    // only take value of next token without changing current index
-        public Token checkNextTokenValue()
-        {
-            try
-            {
-                return tokens[index + 1];                
-            }
-            catch (System.Exception)
-            {
-                throw SystemException;
-            }
-        }
-
-        public bool CheckStartOfObject() 
-        {
-            bool retVal = false;
-
-            if(Colon()) 
-            {
-                if(ObjectStart()) 
-                {
-                    retVal = true;
-                }
-                else 
-                {
-                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected start of object"));    
-                }
-            }
-            else 
-            {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected colon"));    
             }
             return retVal;
         }

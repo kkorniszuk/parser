@@ -198,7 +198,39 @@ namespace Walidator
             return retVal;
         }
 
+        public bool ArrayStart()
+        {
+            bool retVal = false;
+            this.getNextToken();
 
+
+            if (this.tokens[index].GetToken() == Token.arrayStart)
+            {
+                retVal = true;
+            }
+            else
+            {
+                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found '[' "));
+            }
+            return retVal;
+        }
+
+        public bool ArrayEnd()
+        {
+            bool retVal = false;
+            this.getNextToken();
+
+
+            if (this.tokens[index].GetToken() == Token.arrayEnd)
+            {
+                retVal = true;
+            }
+            else
+            {
+                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found ']' "));
+            }
+            return retVal;
+        }
 
         public bool WhiteSpace()
         {
@@ -206,6 +238,19 @@ namespace Walidator
 
             this.getNextToken();
             if (this.tokens[index].GetToken() == Token.WhiteSpace)
+            {
+                retVal = false;
+            }
+
+            return retVal;
+        }
+
+        public bool Number()
+        {
+            bool retVal = true;
+
+            this.getNextToken();
+            if (this.tokens[index].GetToken() == Token.number)
             {
                 retVal = false;
             }
@@ -268,9 +313,9 @@ namespace Walidator
         public bool titleToken()
         {
             bool retVal = false;
-            if (Colon()&&String()&&Comma())
+            if (Colon() && String() && Comma())
             {
-                        retVal = true;
+                retVal = true;
             }
             return retVal;
         }
@@ -305,26 +350,22 @@ namespace Walidator
         public bool propertiesToken()
         {
             bool retVal = false;
-            if (Colon()&&ObjectStart())
+            if (Colon() && ObjectStart())
             {
-                if (String() && Comma())
+                if (String() && Colon())
                 {
-                    //Tu się zatrzymałem Miej na uwadze że  mogą nastąpic rózne przypadki enum, inimum, description i różne kolejności
-                    //if(ObjectStart() && P)
-                }
-                
-                    this.getNextToken();
-                    this.propertyToken();
-                    if (ObjectEnd() && Comma())
+                    bool tmp = this.propertyToken();
+                    while (tmp)
                     {
-                        
+                        tmp = this.propertyToken();
+                        retVal = true;
                     }
-                    
-              
-            }
-            else
-            {
-                // throw error - comma expected
+                }
+                else
+                {
+                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found any object in properties!"));
+                }
+
             }
             return retVal;
         }
@@ -333,48 +374,134 @@ namespace Walidator
         {
             bool retVal = false;
 
+            this.getNextToken();
+            if (typeToken() || minimum() || description() || enumToken())
+            {
+                retVal = true;
+
+            }
+            else
+            {
+                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found any value in object"));
+            }
+
             return retVal;
         }
         public bool description()
         {
             bool retVal = false;
 
+            if (Colon() && String() && Comma())
+            {
+                retVal = true;
+            }
             return retVal;
         }
         public bool required()
         {
             bool retVal = false;
+            if (Colon() && ArrayStart())
+            {
+                bool tmp = true;
+                while (tmp)
+                {
+                    if (String())
+                    {
+                        if (Comma())
+                        {
+                            tmp = true;
+                        }
+                        else
+                        {
+                            tmp = false;
+                            if (String())
+                            {
+                                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found comma between value in array "));
+                            }
+                            
+                        }
+                    }
+                    else
+                    {
+                        tmp = false;
+                        throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found any value in array "));
+
+                    }
+                }
+
+            }
 
             return retVal;
         }
         public bool minimum()
         {
             bool retVal = false;
-
+            if (Colon() && Number())
+            {
+                retVal = true;
+            }
             return retVal;
         }
         public bool maximum()
         {
             bool retVal = false;
-
+            if (Colon() && Number())
+            {
+                retVal = true;
+            }
             return retVal;
         }
         public bool minLength()
         {
             bool retVal = false;
-
+            if (Colon() && Number())
+            {
+                retVal = true;
+            }
             return retVal;
         }
         public bool maxLength()
         {
             bool retVal = false;
-
+            if (Colon() && Number())
+            {
+                retVal = true;
+            }
             return retVal;
         }
         public bool enumToken()
         {
             bool retVal = false;
+            if (Colon() && ArrayStart())
+            {
+                bool tmp = true;
+                while (tmp)
+                {
+                    if (String())
+                    {
+                        if (Comma())
+                        {
+                            tmp = true;
+                        }
+                        else
+                        {
+                            tmp = false;
+                            if (String())
+                            {
+                                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found comma between value in array "));
+                            }
 
+                        }
+                    }
+                    else
+                    {
+                        tmp = false;
+                        throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found comma between value in array "));
+
+                    }
+                }
+
+            }
             return retVal;
         }
         public bool definitions()

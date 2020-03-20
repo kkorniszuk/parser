@@ -418,7 +418,7 @@ namespace Walidator
                             {
                                 throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found comma between value in array "));
                             }
-                            
+
                         }
                     }
                     else
@@ -514,14 +514,20 @@ namespace Walidator
         {
             // current token is ref element
             bool retVal = false;
-            if(tokens[index].GetToken() == token.stringToken) {
+            if (String())
+            {
                 string refString = tokens[index].GetValString();
-                if(refString[0] == "#") {
-                    return true;
-                } else {
+                if (refString[0] == '#')
+                {
+                    retVal = true;
+                }
+                else
+                {
                     throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Invalid path to ref"));
                 }
-            } else {
+            }
+            else
+            {
                 throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "String expected!"));
             }
             return retVal;

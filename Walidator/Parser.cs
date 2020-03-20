@@ -388,7 +388,7 @@ namespace Walidator
         public bool propertiesToken()
         {
             bool retVal = false;
-            if (Colon() && ObjectStart())
+            if (CheckStartOfObject())
             {
                 bool tmp = true;
                 int iterrationObjectProperties = 0;
@@ -557,8 +557,50 @@ namespace Walidator
         {
             bool retVal = false;
 
+<<<<<<< HEAD
+=======
+        public bool definitionToken() {
+            bool retVal = false;
+            if(checkNextTokenValue().GetToken() == token.objectEnd) 
+            {
+                // it should return true - next token will be end of object
+                retVal = true;
+            }
+            else if(checkNextTokenValue().GetToken() == token.stringToken) 
+            {
+                if(String())
+                {
+                    CheckStartOfObject();
+                    getNextToken();
+                    if(tokens[index].GetToken() == token.type) 
+                    {
+                        typeToken();
+                    }
+                    else if (tokens[index].GetToken() == token.properties)
+                    {
+                        propertiesToken();
+                    }
+                    else 
+                    {
+                        throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected keywords: type or properties"));
+                    }
+                    ObjectEnd();
+                }
+                else 
+                {
+                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected string token"));
+                }
+                definitionToken();
+            }
+            else 
+            {
+                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected property name or end of object. "));
+            }
+>>>>>>> 2036af00258b4e80f4831f6134073d8a8d0ea008
             return retVal;
         }
+
+
         public bool refToken()
         {
             // current token is ref element

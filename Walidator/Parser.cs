@@ -343,7 +343,7 @@ namespace Walidator
         public bool propertiesToken()
         {
             bool retVal = false;
-            if (Colon() && ObjectStart())
+            if (CheckStartOfObject())
             {
                 if (String() && Colon())
                 {

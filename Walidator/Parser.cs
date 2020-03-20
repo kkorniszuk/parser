@@ -405,9 +405,9 @@ namespace Walidator
                         if (propertyToken())
                         {
                             retVal = true;
-                            if (ObjectEnd)
+                            if (ObjectEnd())
                             {
-
+                                tmp = false;
                             }
                         }
                     }

@@ -512,8 +512,18 @@ namespace Walidator
         }
         public bool refToken()
         {
+            // current token is ref element
             bool retVal = false;
-
+            if(tokens[index].GetToken() == token.stringToken) {
+                string refString = tokens[index].GetValString();
+                if(refString[0] == "#") {
+                    return true;
+                } else {
+                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Invalid path to ref"));
+                }
+            } else {
+                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "String expected!"));
+            }
             return retVal;
         }
         //public bool getCommaToken() {

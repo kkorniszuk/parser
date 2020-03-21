@@ -14,7 +14,7 @@ namespace Walidator
         private static Regex numberRegex = new Regex(@"^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$"); // double, int i postaci wykladnicze
         private static char[] numberChars = { 'e', 'E', '-', '.', '+' };//tablica z akceptowanymi znakami dla liczby nie liczac cyfr
         public static string jsonf; //kopia tekstu json
-        public static List<string> lines = new List<string>(); // zbiór linii
+        public static List<Error> ErrorList = new List<Error>();
 
         /// <summary>
         /// Analiza leksykalna
@@ -22,10 +22,9 @@ namespace Walidator
         /// <param name="json"></param>
         /// <param name="TokensList"></param>
         /// <returns></returns>
-        public bool lexer(string json, ref List<Token> TokensList)
+        public bool lexer(string json, ref List<Token> TokensList, ref string errorList)
         {
             jsonf = json; // kopia textu json   
-            lines.Clear();
             string cString;
             StringBuilder currentString = new StringBuilder();
 
@@ -41,16 +40,11 @@ namespace Walidator
             bool isString = false;// zmienna do sprawdzania czy jest w srodku czy poza napisem
 
 
-            // Wyłapuje puste pliki JSON
+            // Wyłapuje pusty pliki JSON
             if (json.Length == 0)
             {
-                throw new JSONException("JSON file is empty.\n");
+                ErrorList.Add(new Error(line, "JSON file is empty."));
             }
-            else
-            {
-                TokensList.Add(new Token(Token.jsonFile, n, line, "START")); //Token startowy
-            }
-
 
             for (; n < json.Length; n++)
             {
@@ -60,82 +54,65 @@ namespace Walidator
 
                 if (Char.IsWhiteSpace(c))
                 {
-                    if (c == '\t')
+                    if ((lastChar == ':') && (!(c == '\n')))
                     {
+                        TokensList.Add(new Token(Token.WhiteSpace, line, cString));
                     }
-                        if (c == '\n')
+                    if (c == '\n')
                     {
-                        if (isString)
-                        { currentString.Append('\n'); }
-                        else
-                        {
-                            TokensList.Add(new Token(Token.NewLine, n, line, cString));
-                        }
+                        line++;
                     }
-                    TokensList.Add(new Token(Token.WhiteSpace, n, line, cString));
+
                 }
                 else if (c == '{')// CHAR lub objectStart
                 {
                     if (!isString)
                     {
-                        TokensList.Add(new Token(Token.objectStart, n, line, cString));
+                        TokensList.Add(new Token(Token.objectStart, line, cString));
                     }
                     else
                     {
                         currentString.Append(c);
-                        // TokensList.Add(new Token(Token.CHAR, n, currentString.Append(cString));
                     }
                 }
                 else if (c == '}')// CHAR lub objectEnd
                 {
                     if (!isString)
                     {
-                        TokensList.Add(new Token(Token.objectEnd, n, line, cString));
+                        TokensList.Add(new Token(Token.objectEnd, line, cString));
                     }
                     else
                     {
                         currentString.Append(c);
-                        //TokensList.Add(new Token(Token.CHAR, n, line));
                     }
                 }
                 else if (c == '[')// CHAR lub arrayStart
                 {
                     if (!isString)
                     {
-                        TokensList.Add(new Token(Token.arrayStart, n, line, cString));
+                        TokensList.Add(new Token(Token.arrayStart, line, cString));
                     }
                     else
                     {
                         currentString.Append(c);
-                        //TokensList.Add(new Token(Token.CHAR, n, line));
                     }
                 }
                 else if (c == ']') // CHAR lub arrayEnd
                 {
                     if (!isString)
                     {
-                        TokensList.Add(new Token(Token.arrayEnd, n, line, cString));
+                        TokensList.Add(new Token(Token.arrayEnd, line, cString));
                     }
                     else
                     {
                         currentString.Append(c);
-                        //TokensList.Add(new Token(Token.CHAR, n, line));
                     }
                 }
-
-                /*
-                 * Sprawdzamy:
-                 * 1. Czy jestesmy w napisie i czy NIE ma \ przed znakiem => QUOTE
-                 * 2. Czy jestesmy w napisie i czy jest \ przed znakiem => CHAR
-                 * 3. Jesli nie jestesmy w napisie => QUOTE                 
-                 */
-
                 else if (c == '"')
                 {
                     if (isString && lastChar == '\\')// Sprawdzamy cz jest znak '\' przed '"' 
                     {
                         currentString.Append(cString);
-                        //TokensList.Add(new Token(Token.CHAR, n, line, cS));
                     }
                     else if (isString && lastChar != '\\')//rozpoczęty string + '"'(bez'\') == koniec string
                     {
@@ -143,20 +120,18 @@ namespace Walidator
                         string tmp1 = currentString.ToString();
                         int tmp2 = keywords(tmp1);
 
-
                         if (tmp2 == 0)//nie wykrytosłów kluczowych
                         {
-                            TokensList.Add(new Token(Token.stringToken, n, line, tmp1));
+                            TokensList.Add(new Token(Token.stringToken, line, tmp1));
                         }
                         else
                         {
-                            TokensList.Add(new Token(tmp2, n, line, tmp1));
+                            TokensList.Add(new Token(tmp2, line, tmp1));
                         }
                         currentString.Length = 0;
                     }
                     else// rozpoczynamy stringa isString=true
                     {
-                        //TokensList.Add(new Token(Token.qute, n, line,));
                         isString = true;
                     }
                 }
@@ -164,55 +139,31 @@ namespace Walidator
                 {
                     if (!isString)
                     {
-                        TokensList.Add(new Token(Token.colon, n, line, cString));
+                        TokensList.Add(new Token(Token.colon, line, cString));
 
                     }
                     else
                     {
                         currentString.Append(cString);
-                        //TokensList.Add(new Token(Token.CHAR, n, line, ));
                     }
                 }
                 else if (c == ',')
                 {
                     if (!isString)
                     {
-
-                        TokensList.Add(new Token(Token.comma, n, line, cString));
+                        TokensList.Add(new Token(Token.comma, line, cString));
                     }
                     else
                     {
                         currentString.Append(cString);
-                        //TokensList.Add(new Token(Token.CHAR, n, line));
                     }
                 }
                 else if (c == '.')
                 {
-                    if (!isString)
-                    {
-
-                        //TokensList.Add(new Token(Token.CHAR, n, line));
-                    }
-                    else
-                    {
-                        currentString.Append(cString);
-                        //TokensList.Add(new Token(Token.dot, n, line));
-                    }
-                }
-                else if (c == '\n')
-                {
                     if (isString)
                     {
-
+                        currentString.Append(cString);
                     }
-                    else
-                    {
-                        lines.Add(currentLine);
-                        line++;
-                        currentLine = "";
-                    }
-
-
                 }
                 else if (isString)
                 {
@@ -222,112 +173,117 @@ namespace Walidator
                     }
                     else
                     {
-                        throw new JSONException(ErrorMessage.errorMsg(line, n, "Got unexpected char '\\'"));
+                        ErrorList.Add(new Error(line, "Got unexpected char '\\'"));
                     }
 
                 }
-                /* Jesli nie jestesmy w napisie a pojawia sie litery lub cyfry
-                * 1. Jesli liczba  => NUMBER
-                * 2. Sprawdzamy czy wartosc logiczna => TRUE v FALSE
-                * 3. Sprawdzamy czy null => NULL
-                * 
-                * Jeśli żaden z powyższych zgłoś błąd 
-                */
                 else if (!isString)
                 {
-                    try
-                    {
-                        //NUMBER
-                        if (c == '-' || c == '+' || c == 'E' || c == 'e' || c == '.' || Char.IsDigit(c))
-                        {
-                            //iterujemy i laczymy cyfery/znaki a potem patrzymy czy dobry regex
-                            while (numberChars.Contains(json[n]) || Char.IsDigit(json[n]))
-                            {
-                                tmp += json[n].ToString();
-                                n++;
-                                currentString.Append(cString);
-                            }
-                            n--;
-                            if (numberRegex.IsMatch(tmp))
-                            {
-                                TokensList.Add(new Token(Token.number, n, line, currentString.ToString()));
-                                currentString.Length = 0;
-                            }
 
-                            else
-                                throw new JSONException(ErrorMessage.errorMsg(line, n, "Number, logic value or string not in quotes!"));
-                            tmp = "";
-                        }
-                        //TRUE
-                        else if (c == 't' || c == 'T')
+                    //NUMBER
+                    if (c == '-' || c == '+' || c == 'E' || c == 'e' || c == '.' || Char.IsDigit(c))
+                    {
+                        //iterujemy i laczymy cyfery/znaki a potem patrzymy czy dobry regex
+                        while (numberChars.Contains(json[n]) || Char.IsDigit(json[n]))
                         {
-                            tmp = (json[n].ToString() + json[n + 1].ToString() + json[n + 2].ToString() + json[n + 3].ToString()).ToLower();
-                            if (String.Equals(tmp, "true"))
-                            {
-                                TokensList.Add(new Token(Token.TRUE, n, line, "true"));
-                                n += 3;
-                                tmp = "";
-                                c = json[n];
-                            }
-                            else
-                            {
-                                throw new JSONException(ErrorMessage.errorMsg(line, n, "Number, logic value or string not in quotes!"));
-                            }
+                            tmp += json[n].ToString();
+                            n++;
+                            currentString.Append(cString);
                         }
-                        //FALSE
-                        else if (c == 'f' || c == 'F')
+                        n--;
+                        if (numberRegex.IsMatch(tmp))
                         {
-                            tmp = (json[n].ToString() + json[n + 1].ToString() + json[n + 2].ToString() + json[n + 3].ToString() + json[n + 4]).ToLower();
-                            if (String.Equals(tmp, "false"))
-                            {
-                                TokensList.Add(new Token(Token.FALSE, n, line, "false"));
-                                n += 4;
-                                tmp = "";
-                                c = json[n];
-                            }
-                            else
-                            {
-                                throw new JSONException(ErrorMessage.errorMsg(line, n, "Number, logic value or string not in quotes!"));
-                            }
+                            TokensList.Add(new Token(Token.number, line, currentString.ToString()));
+                            currentString.Length = 0;
                         }
-                        //NULL
-                        else if (c == 'n' || c == 'N')
-                        {
-                            tmp = (json[n].ToString() + json[n + 1].ToString() + json[n + 2].ToString() + json[n + 3].ToString()).ToLower();
-                            if (String.Equals(tmp, "null"))
-                            {
-                                TokensList.Add(new Token(Token.NULL, n, line, "null"));
-                                n += 3;
-                                tmp = "";
-                                c = json[n];
-                            }
-                            else
-                            {
-                                throw new JSONException(ErrorMessage.errorMsg(line, n, "Number, logic value or string not in quotes!"));
-                            }
-                        }
-                        //else jest zle
                         else
                         {
-                            throw new JSONException(ErrorMessage.errorMsg(line, n, "Number, logic value or string not in quotes!"));
+                            ErrorList.Add(new Error(line, "Number, logic value or string not in quotes!"));
+                        }
+                        tmp = "";
+                    }
+                    //TRUE
+                    else if (c == 't' || c == 'T')
+                    {
+                        tmp = (json[n].ToString() + json[n + 1].ToString() + json[n + 2].ToString() + json[n + 3].ToString()).ToLower();
+                        if (String.Equals(tmp, "true"))
+                        {
+                            TokensList.Add(new Token(Token.TRUE, line, "true"));
+                            n += 3;
+                            tmp = "";
+                            c = json[n];
+                        }
+                        else
+                        {
+                            ErrorList.Add(new Error(line, "Number, logic value or string not in quotes!"));
                         }
                     }
-                    catch (IndexOutOfRangeException)
+                    //FALSE
+                    else if (c == 'f' || c == 'F')
                     {
-                        throw new JSONException(ErrorMessage.errorMsg(line, n, "Unexpected EOF!"));
+                        tmp = (json[n].ToString() + json[n + 1].ToString() + json[n + 2].ToString() + json[n + 3].ToString() + json[n + 4]).ToLower();
+                        if (String.Equals(tmp, "false"))
+                        {
+                            TokensList.Add(new Token(Token.FALSE, line, "false"));
+                            n += 4;
+                            tmp = "";
+                            c = json[n];
+                        }
+                        else
+                        {
+                            ErrorList.Add(new Error(line, "Number, logic value or string not in quotes!"));
+                        }
                     }
-                    catch (ArgumentOutOfRangeException)
+                    //NULL
+                    else if (c == 'n' || c == 'N')
                     {
-                        throw new JSONException(ErrorMessage.errorMsg(line, n, "Unexpected EOF!"));
+                        tmp = (json[n].ToString() + json[n + 1].ToString() + json[n + 2].ToString() + json[n + 3].ToString()).ToLower();
+                        if (String.Equals(tmp, "null"))
+                        {
+                            TokensList.Add(new Token(Token.NULL, line, "null"));
+                            n += 3;
+                            tmp = "";
+                            c = json[n];
+                        }
+                        else
+                        {
+                            ErrorList.Add(new Error(line, "Number, logic value or string not in quotes!"));
+                        }
                     }
+                    //else jest zle
+                    else
+                    {
+                        ErrorList.Add(new Error(line, "Number, logic value or string not in quotes!"));
+                    }
+
+
                 }
 
 
                 lastChar = c;
             }
-            lines.Add(currentLine); //dodanie ostatniej linii
-            TokensList.Add(new Token(Token.END, n, line, "END"));
-            return false;
+            TokensList.Add(new Token(Token.END, line, "END"));
+            errorList = ListToString(ErrorList);
+            if (ErrorList.Count == 0)
+            {
+                return true;
+            }
+            else
+            { return false; }
+
+        }
+
+        public string ListToString(List<Error> error)
+        {
+            string retval = "";
+            StringBuilder errList = new StringBuilder();
+            errList.AppendFormat("+Scaner: \n\t-Error({0}\n)", error.Count.ToString());
+
+            foreach (var er in error)
+            {
+                errList.AppendFormat("\t-line{0} error:{1}", er.GetLine(), er.GetDescription());
+            }
+            return retval;
         }
 
         public int keywords(string parametr)
@@ -341,7 +297,7 @@ namespace Walidator
                 case "$schema":
                     retVal = 52;
                     break;
-                case " title":
+                case "title":
                     retVal = 53;
                     break;
                 case "type":
@@ -372,10 +328,10 @@ namespace Walidator
                     retVal = 62;
                     break;
                 case "enum":
-                    retVal = 51;
+                    retVal = 63;
                     break;
                 case "$ref":
-                    retVal = 51;
+                    retVal = 64;
                     break;
             }
             return retVal;

@@ -12,7 +12,6 @@ namespace Walidator
 
         public int token;       //token
         public int lineNumber;        //number line 
-        public int charNumber;     //char number from beggining
         public string val;
 
         
@@ -56,10 +55,9 @@ namespace Walidator
 
 
        
-        public Token(int Token, int Column, int Line, string valString)
+        public Token(int Token, int Line, string valString)
         {
             this.token = Token;
-            this.charNumber = Column;
             this.lineNumber = Line;
             this.val = valString;
         }
@@ -74,10 +72,6 @@ namespace Walidator
             return this.lineNumber;
         }
 
-        public int GetCnumber()
-        {
-            return this.charNumber;
-        }
 
         public string GetValString()
         {

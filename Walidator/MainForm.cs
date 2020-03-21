@@ -16,6 +16,7 @@ namespace Walidator
 
         string fileContent = string.Empty;
         string filePath = string.Empty;
+        string Result = string.Empty;
 
         //bool a()
         //{
@@ -113,7 +114,7 @@ namespace Walidator
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Waliduj_1();
+            Waliduj();
         
         }
 
@@ -123,12 +124,13 @@ namespace Walidator
         /// </summary>
         private void Waliduj_1()
         {
+            
             List<Token> TokensList = new List<Token>();
             scanner l = new scanner();
             //Parser p = new Parser();
             bool failed = false;
             StringBuilder Tmp = new StringBuilder();
-            failed = l.lexer(rtbInput.Text, ref TokensList);
+            failed = l.lexer(rtbInput.Text, ref TokensList, ref Result);
             foreach (var item in TokensList)
             {
                 Tmp.Append(item.GetToken().ToString());
@@ -150,46 +152,32 @@ namespace Walidator
             
             bool failed = false;
             StringBuilder Tmp = new StringBuilder();
-            failed = l.lexer(rtbInput.Text, ref TokensList);
+            failed = l.lexer(rtbInput.Text, ref TokensList, ref Result);
 
-            Parser p = new Parser(TokensList);
-
-            foreach (var item in TokensList)
-            {
-                Tmp.Append(item.GetToken().ToString());
-                Tmp.Append("||");
-                if (item.GetToken() == Token.NewLine)
-                {
-                    Tmp.Append('\n');
-                }
-            }
-
-            rtbResult.Text = Tmp.ToString();
-            Tmp.Length = 0;
+          
             //p.start();
-            try
-            {
-
-            }
-            catch (JSONException pje)
-            {
-                failed = true;
-                //panel4.BackColor = Color.Red;
-                rtbResult.Text = pje.Message + "\n" + "Validation failed.";
-            }
+            
+            Parser p = new Parser(TokensList);
+            Result=Result+p.start();
+            rtbResult.Text = Result;//+ Tmp.ToString();
+            //foreach (var item in TokensList)
+            //{
+            //    Tmp.Append(item.GetToken().ToString());
+            //    Tmp.Append("||");
+            //    if (item.GetToken() == Token.NewLine)
+            //    {
+            //        Tmp.Append('\n');
+            //    }
+            //}
+            //p.start();
+            // Tmp.Length = 0;
+            
 
             if (!failed)
             {
                 rtbResult.Text = "Json is valid.";
-                //panel4.BackColor = Color.Green;
             }
             failed = false;
-#if DEBUG
-            foreach (Token t in TokensList)
-            {
-                Console.Write(t);
-            }
-#endif
         }
     }
 }

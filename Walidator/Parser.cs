@@ -17,107 +17,122 @@ namespace Walidator
         private int currentToken;        //numer obecnie przetwarzanego tokenu
         private int index;              //index obecnie przetwarzanego tokeny
         private int iterationJsonMSS;  // iteration jsonMainSchemaStructures()
+        List<Error> ErrorList = new List<Error>();
+        StringBuilder errorListDisplay = new StringBuilder();
 
         private Token token;
         public Parser(List<Token> tokenList)
         {
-            this.tokens = new List<Token>();
+            this.tokens = tokenList;
             this.currentToken = 0;
             this.index = 0;
-            //this.token = new Token();
         }
 
-        public int start()
-        {
-            int retVal = 0;
 
-            //pomiń spacje
+
+        public string start()
+        {
+            string retVal = "";
+
+
+
             if (ObjectStart())
             {
-                //pomiń spacje
-                this.jsonMainSchemaStructures();
-                if (hasJsonSchema)
+                jsonMainSchemaStructures();
+
+            }
+
+            return retVal = errorListDisplay.ToString();
+
+
+        }
+
+        private string ErrorListToString(List<Error> errorList)
+        {
+            string retVal = "";
+            StringBuilder ListError = new StringBuilder();
+            int i = 0;
+            foreach (var error in errorList)
+            {
+                if (i < 0)
                 {
-                    // success
+                    ListError.AppendFormat("Line:{0} Error:{1} \n", error.GetLine(), error.GetDescription());
                 }
                 else
                 {
-                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "JSON schema not valid - $schema field is required."));
-
+                    ListError.AppendFormat("  - line:{} error:{1} \n", error.GetLine(), error.GetDescription());
                 }
+                i++;
             }
-            else
-            {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Starting symbol } required."));
-            }
+
+            retVal = ListError.ToString();
             return retVal;
         }
 
-        public int jsonMainSchemaStructures()
+        /// <summary>
+        /// Check jsonMainSchemaStructures::= '{' keywords (',' keywords)*'}'
+        /// </summary>
+        public bool jsonMainSchemaStructures()
         {
+            bool retVal = false;
+            int iterationJsonMSS = 0;
 
-            int retVal = 0;
-            iterationJsonMSS++;
+            bool tmpMain = true;
+            while (tmpMain)
+            {
+                if (iterationJsonMSS > 0)
+                {
+                    if (Comma())
+                    {
+                        if (Keywords() == 1)
+                        {
+                            tmpMain = true;
+                        }
+                        else if (Keywords() == 2)
+                        {
+                            tmpMain = false;
+                            if (hasJsonSchema)
+                            {
+                                tmpMain = false;
+                                errorListDisplay.Append("JSON schema not valid - Found not '}'");
+                            }
+                            else
+                            {
+                                tmpMain = false;
+                                errorListDisplay.Append("JSON schema not valid - $schema field is required.");
+                                errorListDisplay.Append("                      - Found not '}'");
 
-            //this.getNextToken();
-            if (iterationJsonMSS > 1)
-            {
-                Comma();
-            }
+                            }
+                        }
+                        else if (Keywords() == 3)
+                        {
+                            if (hasJsonSchema)
+                            {
+                                tmpMain = false;
+                            }
+                            else
+                            {
+                                tmpMain = false;
+                                errorListDisplay.Append("JSON schema not valid - $schema field is required.");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (Keywords() == 1)
+                    {
+                        tmpMain = true;
+                    }
+                    else
+                    {
+                        errorListDisplay.Append("JSON schema not valid - $schema field is required.");
+                    }
 
-
-            if (this.tokens[index].GetToken() == Token.id)
-            {
-                this.getNextToken();
-                this.idToken();
-                this.jsonMainSchemaStructures();
-            }
-            else if (this.tokens[index].GetToken() == Token.schema)
-            {
-                this.getNextToken();
-                this.schemaToken();
-                this.jsonMainSchemaStructures();
-            }
-            else if (this.tokens[index].GetToken() == Token.title)
-            {
-                this.getNextToken();
-                this.titleToken();
-                this.jsonMainSchemaStructures();
-            }
-            else if (this.tokens[index].GetToken() == Token.type)
-            {
-                this.getNextToken();
-                this.typeToken();
-                this.jsonMainSchemaStructures();
-            }
-            else if (this.tokens[index].GetToken() == Token.properties)
-            {
-                this.getNextToken();
-                this.propertiesToken();
-                this.jsonMainSchemaStructures();
-            }
-            else if (this.tokens[index].GetToken() == Token.required)
-            {
-                this.getNextToken();
-
-            }
-            else if (this.tokens[index].GetToken() == Token.definitions)
-            {
-
-                this.getNextToken();
-                this.definitionsToken();
-            }
-            else if (this.tokens[index].GetToken() == Token.objectEnd && index == this.tokens.Count - 1)
-            {
-                // not sure what type should it be 
-                retVal = true;
-            }
-            else
-            {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Symbol not valid."));
-
+                }
             }
             return retVal;
+
         }
 
         public void getNextToken()
@@ -132,6 +147,131 @@ namespace Walidator
             }
         }
 
+        public int Keywords()
+        {
+            int retVal = 1;//1-continue, 2-EOF, 3 objectEnd
+
+
+            if (this.tokens[index].GetToken() == Token.id)
+            {
+                this.getNextToken();
+                if (idToken())
+                {
+                    ErrorList.Clear();
+                }
+                else
+                {
+                    errorListDisplay.Append(ErrorListToString(ErrorList));
+                    ErrorList.Clear();
+                }
+                this.jsonMainSchemaStructures();
+            }
+            else if (this.tokens[index].GetToken() == Token.schema)
+            {
+                this.getNextToken();
+                if (schemaToken())
+                {
+                    hasJsonSchema = true;
+                    ErrorList.Clear();
+                }
+                else
+                {
+                    errorListDisplay.Append(ErrorListToString(ErrorList));
+                    ErrorList.Clear();
+                }
+                this.jsonMainSchemaStructures();
+            }
+            else if (this.tokens[index].GetToken() == Token.title)
+            {
+                this.getNextToken();
+                if (titleToken())
+                {
+                    ErrorList.Clear();
+                }
+                else
+                {
+                    errorListDisplay.Append(ErrorListToString(ErrorList));
+                    ErrorList.Clear();
+                }
+                this.jsonMainSchemaStructures();
+            }
+            else if (this.tokens[index].GetToken() == Token.type)
+            {
+                this.getNextToken();
+                if (typeToken())
+                {
+                    ErrorList.Clear();
+                }
+                else
+                {
+                    errorListDisplay.Append(ErrorListToString(ErrorList));
+                    ErrorList.Clear();
+                }
+                this.jsonMainSchemaStructures();
+            }
+            else if (this.tokens[index].GetToken() == Token.properties)
+            {
+                this.getNextToken();
+                if (propertiesToken())
+                {
+                    ErrorList.Clear();
+                }
+                else
+                {
+                    errorListDisplay.Append(ErrorListToString(ErrorList));
+                    ErrorList.Clear();
+                }
+                this.jsonMainSchemaStructures();
+            }
+            else if (this.tokens[index].GetToken() == Token.required)
+            {
+                this.getNextToken();
+                if (required())
+                {
+                    ErrorList.Clear();
+                }
+                else
+                {
+                    errorListDisplay.Append(ErrorListToString(ErrorList));
+                    ErrorList.Clear();
+                }
+                jsonMainSchemaStructures();
+
+            }
+            else if (this.tokens[index].GetToken() == Token.definitions)
+            {
+                this.getNextToken();
+                if (definitionsToken())
+                {
+                    ErrorList.Clear();
+                }
+                else
+                {
+                    errorListDisplay.Append(ErrorListToString(ErrorList));
+                    ErrorList.Clear();
+                }
+                jsonMainSchemaStructures();
+
+
+            }
+            else if ((this.tokens[index].GetToken() == Token.END))
+            {
+                retVal = 2;
+            }
+            else
+            {
+                if ((this.tokens[index].GetToken() == Token.objectEnd))
+                { retVal = 2; }
+                else
+                {
+                    errorListDisplay.AppendFormat("  - line:Symbol not valid( error:{0})\n", tokens[index].GetLine());
+                }
+            }
+
+            return retVal;
+
+        }
+
         public bool String()
         {
             bool retVal = false;
@@ -144,7 +284,8 @@ namespace Walidator
             }
             else
             {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found string!"));
+                ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorString));
+                //throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found string!"));
             }
 
             return retVal;
@@ -163,7 +304,8 @@ namespace Walidator
             }
             else
             {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found comma!"));
+                ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorComma));
+                //throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found comma!"));
             }
 
             return retVal;
@@ -173,11 +315,12 @@ namespace Walidator
 
         public bool isUrlString()
         {
-
+            index--;
             bool retVal = Uri.IsWellFormedUriString(tokens[index].GetValString(), UriKind.RelativeOrAbsolute);
             if (!retVal)
             {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found Url!"));
+                ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorUrl));
+                //throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found Url!"));
             }
             else
             {
@@ -189,9 +332,7 @@ namespace Walidator
         public bool ObjectStart()
         {
             bool retVal = false;
-
-
-
+            int a = this.tokens[index].GetToken();
             if (this.tokens[index].GetToken() == Token.objectStart)
             {
                 retVal = true;
@@ -199,7 +340,9 @@ namespace Walidator
             }
             else
             {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found '{' "));
+
+                ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorObjectStart));
+
             }
             return retVal;
         }
@@ -217,7 +360,8 @@ namespace Walidator
             }
             else
             {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found '}' "));
+                ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorObjectSstop));
+                //throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found '}' "));
             }
             return retVal;
         }
@@ -225,8 +369,6 @@ namespace Walidator
         public bool ArrayStart()
         {
             bool retVal = false;
-
-
 
             if (this.tokens[index].GetToken() == Token.arrayStart)
             {
@@ -236,7 +378,8 @@ namespace Walidator
             }
             else
             {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found '[' "));
+                ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorArraytStart));
+                //throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found '[' "));
             }
             return retVal;
         }
@@ -254,7 +397,8 @@ namespace Walidator
             }
             else
             {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found ']' "));
+                ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorArrayEnd));
+                //throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found ']' "));
             }
             return retVal;
         }
@@ -263,11 +407,38 @@ namespace Walidator
         {
             bool retVal = false;
 
-
             if (this.tokens[index].GetToken() == Token.WhiteSpace)
             {
                 this.getNextToken();
                 retVal = true;
+            }
+
+            return retVal;
+        }
+
+        public bool NewLine()
+        {
+            bool retVal = false;
+
+            if (this.tokens[index].GetToken() == Token.NewLine)
+            {
+                this.getNextToken();
+                retVal = true;
+            }
+
+            return retVal;
+        }
+
+
+
+
+        public bool skipSpace()
+        {
+            bool retVal = false;
+            bool tmp = true;
+            while (tmp)
+            {
+                tmp = WhiteSpace() || NewLine();
             }
 
             return retVal;
@@ -307,18 +478,25 @@ namespace Walidator
                 }
                 else
                 {
-                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found WhiteSpace!"));
+                    ErrorList.Add(new Error(tokens[index].GetLine(), Error.WhiteSpace));
+                    //throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found WhiteSpace!"));
                 }
             }
             else
             {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found Colon!"));
+                ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorColon));
+                //throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found Colon!"));
             }
             return retVal;
         }
 
-        public bool idToken()
+        /// <summary>
+        /// Check $id: string
+        /// </summary>
+        /// <returns>True if correct </returns>
+        public bool idToken() // : string
         {
+            ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorID));//Zostanie usunięte jeśli retVal==true
             bool retVal = false;
             if (Colon() && String())
             {
@@ -329,6 +507,7 @@ namespace Walidator
 
         public bool schemaToken()
         {
+            ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorSchema));//Zostanie usunięte jeśli retVal==true
             bool retVal = false;
             if (Colon() && String() && isUrlString())
             {
@@ -340,8 +519,13 @@ namespace Walidator
             return retVal;
         }
 
+        /// <summary>
+        /// Check title::= string 
+        /// </summary>
+        /// <returns></returns>
         public bool titleToken()
         {
+            ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorTitle));//Zostanie usunięte jeśli retVal==true
             bool retVal = false;
             if (Colon() && String())
             {
@@ -350,9 +534,16 @@ namespace Walidator
             return retVal;
         }
 
-        //"object" || "string" || "number" || "array" || "boolean" ||"null"
-        public bool CompareStringwithItemArrayStringType(string parametr)
+
+        /// <summary>
+        ///  Compare String with Item Array StringType
+        ///  "object" || "string" || "number" || "array" || "boolean" ||"null"
+        /// </summary>
+        /// <param name="parametr"></param>
+        /// <returns></returns>
+        public bool StringType(string parametr)
         {
+
             bool retVal = false;
             string[] tmpArray = { "object", "string", "number", "array", "boolean", "null" };
             for (int k = 0; k < tmpArray.Length; k++)
@@ -361,113 +552,310 @@ namespace Walidator
                 {
                     retVal = true;
                 }
+                else
+                {
+                    ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorStringType));
+                }
             }
 
 
             return retVal;
         }
 
-        public bool typeToken()
+
+        /// <summary>
+        /// Check type : StringType (',' StringType)*
+        /// </summary>
+        /// <returns></returns>
+        public bool typeToken() //  ::= (StringType ',')*
         {
-            int itterationTypeToken = 0;
+            int iterationType = 0;
+            ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorType));//Zostanie usunięte jeśli retVal==true
             bool retVal = false;
             if (Colon())
             {
                 bool tmp = true;
                 while (tmp)
-
-
-
-
-
-
                 {
-                    itterationTypeToken++;
-                    if (itterationTypeToken > 1)
+                    string tmpS = this.tokens[index].GetValString();
+
+                    if ((iterationType < 1) && StringType(tmpS))
                     {
-                        Comma();
+                        tmp = true;
+                        retVal = true;
+                        skipSpace();
                     }
-                    if (String())
+                    else if (Comma())
                     {
-                        string tmpS = this.tokens[index].GetValString();
-                        if (String() && (CompareStringwithItemArrayStringType(tmpS)))
-                        {
-                            retVal = true;
-                        }
-                        else
-                        {
-                            throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Incorrect type!"));
-                        }
+                        skipSpace();
+                        retVal = false;
+                    }
+                    else if (StringType(tmpS))
+                    {
+                        skipSpace();
+                        retVal = true;
+                    }
+                    else if (String())
+                    {
+                        tmp = false;
+                        retVal = false;
                     }
                     else
                     {
                         tmp = false;
+                        retVal = true;
+                        ErrorList.Remove(ErrorList.Last());
                     }
+                    iterationType++;
+
 
                 }
+            }
+            return retVal;
+        }
 
 
+        /// <summary>
+        /// Check properties= '{' ObjectProperties (',' ObjectProperties)* '}'
+        /// </summary>
+        /// <returns></returns>
+        public bool propertiesToken()
+        {
+            ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorProperties));//Zostanie usunięte jeśli retVal==true
+            bool retVal = false;
 
+            if (Colon() && ObjectStart())
+            {
+                bool tmp = true;
+                int iterrationProperties = 0;
 
+                while (tmp)
+                {
+                    string tmpS = this.tokens[index].GetValString();
 
+                    if ((iterrationProperties < 1) && objectProperties())
+                    {
+                        tmp = true;
+                        retVal = true;
+                        //skipSpace();
+                    }
+                    else
+                    {
+                        if (Comma())
+                        {
+                            if (objectProperties())
+                            {
+                                retVal = true;
+                                tmp = true;
+                            }
+                            else
+                            {
+                                tmp = false;
+                                retVal = false;
+                            }
+                        }
+                        else
+                        {
+                            if (objectProperties())
+                            {
+                                retVal = false;
+                                tmp = false;
+                            }
+                            else
+                            {
+                                if (ObjectEnd())
+                                {
+                                    retVal = true;
+                                    tmp = false;
+                                }
+                                else
+                                {
+                                    retVal = false;
+                                    tmp = false;
+                                }
+                            }
+
+                        }
+                        iterrationProperties++;
+                    }
+                }
 
             }
             return retVal;
         }
-        public bool propertiesToken()
+
+        /// <summary>
+        /// Check ObjectProperties::= '{' fields (',' fields)* '}'
+        /// </summary>
+        /// <returns></returns>
+        public bool objectProperties()
         {
             bool retVal = false;
-            if (CheckStartOfObject())
+
+            if (String() && Colon() && ObjectStart())
             {
                 bool tmp = true;
                 int iterrationObjectProperties = 0;
+
                 while (tmp)
                 {
-                    iterrationObjectProperties++;
+                    string tmpS = this.tokens[index].GetValString();
 
-                    if (iterrationObjectProperties > 1)
+                    if ((iterrationObjectProperties < 1) && fields())
                     {
-                        Comma();
-
+                        tmp = true;
+                        retVal = true;
+                        //skipSpace();
                     }
-                    if (String() && Colon())
+                    else
                     {
-                        if (propertyToken())
+                        if (Comma())
                         {
-                            retVal = true;
-                            if (ObjectEnd())
+                            if (fields())
+                            {
+                                retVal = true;
+                                tmp = true;
+                            }
+                            else
                             {
                                 tmp = false;
+                                retVal = false;
+                            }
+                        }
+                        else
+                        {
+                            if (fields())
+                            {
+                                retVal = false;
+                                tmp = false;
+                            }
+                            else
+                            {
+                                tmp = false;
+                                retVal = true;
                             }
                         }
                     }
-
+                    iterrationObjectProperties++;
                 }
-
-
             }
+
             return retVal;
+
+
         }
 
-        public bool propertyToken()
+        /// <summary>
+        /// fields::= fieldsItems (','fieldsItems)*
+        /// </summary>
+        /// <returns></returns>
+        public bool fields()
         {
             bool retVal = false;
-
-            this.getNextToken();
-            if (typeToken() || minimum() || description() || enumToken())
+            if (String() && Colon() && String())
             {
-                retVal = true;
+                bool tmp = true;
+                int iterrationFields = 0;
 
-            }
-            else
-            {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found any value in object"));
+                while (tmp)
+                {
+                    string tmpS = this.tokens[index].GetValString();
+
+                    if ((iterrationFields < 1) && fieldsItem())
+                    {
+                        tmp = true;
+                        retVal = true;
+                        //skipSpace();
+                    }
+                    else
+                    {
+                        if (Comma())
+                        {
+                            if (fieldsItem())
+                            {
+                                retVal = true;
+                                tmp = true;
+                            }
+                            else
+                            {
+                                tmp = false;
+                                retVal = false;
+                            }
+                        }
+                        else
+                        {
+                            if (fieldsItem())
+                            {
+                                retVal = false;
+                                tmp = false;
+                            }
+                            else
+                            {
+                                retVal = true;
+                                tmp = false;
+                            }
+
+                        }
+                    }
+                    iterrationFields++;
+                }
             }
 
             return retVal;
         }
+
+        /// <summary>
+        /// Check fieldsItems::= (description|type|minimum|maximum|enum|minLength|maxLength)
+        /// </summary>
+        /// <returns></returns>
+        public bool fieldsItem()
+        {
+            bool retVal = false;
+            int tmpI = tokens[index].GetToken();
+
+            switch (tmpI)
+            {
+                //for Definitions
+                case Token.properties:
+                    propertiesToken();
+                    break;
+                case Token.type:
+                    typeToken();
+                    break;
+                //for Properties
+                case Token.description:
+                    description();
+                    break;
+                case Token.maxLength:
+                    maxLength();
+                    break;
+                case Token.minLength:
+                    minLength();
+                    break;
+                case Token.minimum:
+                    minimum();
+                    break;
+                case Token.maximum:
+                    maximum();
+                    break;
+                case Token.enumToken:
+                    enumToken();
+                    break;
+                case Token.refToken:
+                    refToken();
+                    break;
+                default:
+                    retVal = false;
+                    break;
+            }
+
+            return retVal;
+        }
+
+
         public bool description()
         {
+
             bool retVal = false;
 
             if (Colon() && String() && Comma())
@@ -476,42 +864,63 @@ namespace Walidator
             }
             return retVal;
         }
+
+        /// <summary>
+        /// Check required::= '[' string (',' string)* ']'
+        /// </summary>
+        /// <returns></returns>
         public bool required()
         {
+            int iterationRequired = 0;
             bool retVal = false;
-            if (Colon() && ArrayStart())
+            if (Colon() && ArrayStart()) //::= string (',' string )*
             {
                 bool tmp = true;
                 while (tmp)
                 {
-                    if (String())
+                    if ((iterationRequired < 1) && String())
                     {
-                        if (Comma())
-                        {
-                            tmp = true;
-                        }
-                        else
-                        {
-                            tmp = false;
-                            if (String())
-                            {
-                                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found comma between value in array "));
-                            }
+                        tmp = true;
 
-                        }
                     }
                     else
                     {
-                        tmp = false;
-                        throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found any value in array "));
-
+                        if (Comma())
+                        {
+                            if (String())
+                            {
+                                retVal = true;
+                                tmp = true;
+                            }
+                            else
+                            {
+                                retVal = false;
+                                tmp = false;
+                            }
+                        }
+                        else
+                        {
+                            if (String())
+                            {
+                                retVal = false;
+                                tmp = false;
+                            }
+                            else
+                            {
+                                retVal = true;
+                                tmp = false;
+                            }
+                        }
                     }
                 }
-
             }
-
             return retVal;
         }
+
+        /// <summary>
+        /// Check minimum::= Number
+        /// </summary>
+        /// <returns></returns>
         public bool minimum()
         {
             bool retVal = false;
@@ -521,6 +930,11 @@ namespace Walidator
             }
             return retVal;
         }
+
+        /// <summary>
+        /// Check maximum::= Number
+        /// </summary>
+        /// <returns></returns>
         public bool maximum()
         {
             bool retVal = false;
@@ -530,6 +944,11 @@ namespace Walidator
             }
             return retVal;
         }
+
+        /// <summary>
+        /// Check minLength::= Number
+        /// </summary>
+        /// <returns></returns>
         public bool minLength()
         {
             bool retVal = false;
@@ -539,6 +958,11 @@ namespace Walidator
             }
             return retVal;
         }
+
+        /// <summary>
+        /// Check maxLength::= Number
+        /// </summary>
+        /// <returns></returns>
         public bool maxLength()
         {
             bool retVal = false;
@@ -548,107 +972,189 @@ namespace Walidator
             }
             return retVal;
         }
+
+        /// <summary>
+        /// Check enum::= '[' string (',' string)* ']'
+        /// </summary>
+        /// <returns></returns>
         public bool enumToken()
         {
+
+            int iterationEnum = 0;
             bool retVal = false;
-            if (Colon() && ArrayStart())
+            if (Colon() && ArrayStart()) //::= string (',' string )*
             {
                 bool tmp = true;
                 while (tmp)
                 {
-                    if (String())
+                    if ((iterationEnum < 1) && String())
+                    {
+                        tmp = true;
+
+                    }
+                    else
                     {
                         if (Comma())
                         {
-                            tmp = true;
+                            if (String())
+                            {
+                                retVal = true;
+                                tmp = true;
+                            }
+                            else
+                            {
+                                retVal = false;
+                                tmp = false;
+                            }
                         }
                         else
                         {
-                            tmp = false;
                             if (String())
                             {
-                                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found comma between value in array "));
+                                retVal = false;
+                                tmp = false;
                             }
-
+                            else
+                            {
+                                retVal = true;
+                                tmp = false;
+                            }
                         }
                     }
-                    else
-                    {
-                        tmp = false;
-                        throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Not found comma between value in array "));
-
-                    }
+                    iterationEnum++;
                 }
-
             }
             return retVal;
         }
+
+
+        /// <summary>
+        /// Check definitions='{' objectDefinitions (',' objectDefinitions)* '}'
+        /// </summary>
+        /// <returns></returns>
         public bool definitionsToken()
         {
             bool retVal = false;
-            CheckStartOfObject();
-            definitionToken();
-            if (ObjectEnd())
-            {
-                if (Comma())
-                {
-                    return true;
-                }
-                else
-                {
-                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected coma"));
-                }
-            }
-            else
-            {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected end of object"));
-            }
+
+            retVal = objectProperties();
+            //if (Colon() && ObjectStart(false))
+            //{
+            //    bool tmp = true;
+            //    int iterrationDefinitions = 0;
+
+            //    while (tmp)
+            //    {
+            //        string tmpS = this.tokens[index].GetValString();
+
+            //        if ((iterrationDefinitions < 1) && ObjectDefinitions())
+            //        {
+            //            tmp = true;
+            //            retVal = true;
+            //            //skipSpace();
+            //        }
+            //        else
+            //        {
+            //            if (Comma())
+            //            {
+            //                if (ObjectDefinitions())
+            //                {
+            //                    retVal = true;
+            //                    tmp = true;
+            //                }
+            //                else
+            //                {
+            //                    tmp = false;
+            //                    retVal = false;
+            //                }
+            //            }
+            //            else
+            //            {
+            //                if (ObjectDefinitions())
+            //                {
+            //                    retVal = false;
+            //                    tmp = false;
+            //                }
+            //                else
+            //                {
+            //                    if (ObjectEnd())
+            //                    {
+            //                        retVal = true;
+            //                        tmp = false;
+            //                    }
+            //                    else
+            //                    {
+            //                        retVal = false;
+            //                        tmp = false;
+            //                    }
+            //                }
+
+            //            }
+            //            iterrationDefinitions++;
+            //        }
+            //    }
+            //}
             return retVal;
         }
 
-        public bool definitionToken()
+        /// <summary>
+        /// ObjectDefinitions::= '{' fields, (',' fields)* '}'
+        /// </summary>
+        /// <returns></returns>
+        public bool ObjectDefinitions()
         {
             bool retVal = false;
-            if (checkNextTokenValue().GetToken() == Token.objectEnd)
-            {
-                // it should return true - next token will be end of object
-                retVal = true;
-            }
-            else if (checkNextTokenValue().GetToken() == Token.stringToken)
-            {
-                if (String())
-                {
-                    CheckStartOfObject();
-                    getNextToken();
-                    if (tokens[index].GetToken() == token.type)
-                    {
-                        typeToken();
-                    }
-                    else if (tokens[index].GetToken() == token.properties)
-                    {
-                        propertiesToken();
-                    }
-                    else
-                    {
-                        throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected keywords: type or properties"));
-                    }
-                    ObjectEnd();
-                }
-                else
-                {
-                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected string token"));
-                }
-                definitionToken();
-            }
-            else
-            {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected property name or end of object. "));
-            }
+
+
 
             return retVal;
         }
 
+        //public bool definitionToken()
+        //{
+        //    bool retVal = false;
+        //    if (checkNextTokenValue().GetToken() == Token.objectEnd)
+        //    {
+        //        // it should return true - next token will be end of object
+        //        retVal = true;
+        //    }
+        //    else if (checkNextTokenValue().GetToken() == Token.stringToken)
+        //    {
+        //        if (String())
+        //        {
+        //            CheckStartOfObject();
+        //            getNextToken();
+        //            if (tokens[index].GetToken() == Token.type)
+        //            {
+        //                typeToken();
+        //            }
+        //            else if (tokens[index].GetToken() == Token.properties)
+        //            {
+        //                propertiesToken();
+        //            }
+        //            else
+        //            {
+        //                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected keywords: type or properties"));
+        //            }
+        //            ObjectEnd();
+        //        }
+        //        else
+        //        {
+        //            throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected string token"));
+        //        }
+        //        definitionToken();
+        //    }
+        //    else
+        //    {
+        //        throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected property name or end of object. "));
+        //    }
 
+        //    return retVal;
+        //}
+
+        /// <summary>
+        /// Check $ref
+        /// </summary>
+        /// <returns></returns>
         public bool refToken()
         {
             // current token is ref element
@@ -662,13 +1168,10 @@ namespace Walidator
                 }
                 else
                 {
-                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Invalid path to ref"));
+                    ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorRef));
                 }
             }
-            else
-            {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "String expected!"));
-            }
+
             return retVal;
         }
 
@@ -679,9 +1182,10 @@ namespace Walidator
             {
                 return tokens[index + 1];
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-                throw SystemException;
+                //throw SystemException;
+                return null;
             }
         }
 
@@ -697,12 +1201,12 @@ namespace Walidator
                 }
                 else
                 {
-                    throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected start of object"));
+                    ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorObjectStart));
                 }
             }
             else
             {
-                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected colon"));
+                ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorObjectSstop));
             }
             return retVal;
         }

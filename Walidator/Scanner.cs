@@ -22,7 +22,7 @@ namespace Walidator
         /// <param name="json"></param>
         /// <param name="TokensList"></param>
         /// <returns></returns>
-        public bool lexer(string json, ref List<Token> TokensList, ref string errorList)
+        public List<Error> lexer(string json, ref List<Token> TokensList)
         {
             jsonf = json; // kopia textu json   
             string cString;
@@ -262,30 +262,13 @@ namespace Walidator
 
                 lastChar = c;
             }
+
             TokensList.Add(new Token(Token.END, line, "END"));
-            errorList = ListToString(ErrorList);
-            if (ErrorList.Count == 0)
-            {
-                return true;
-            }
-            else
-            { return false; }
 
+            return ErrorList;
         }
 
-        public string ListToString(List<Error> error)
-        {
-            string retval = "";
-            StringBuilder errList = new StringBuilder();
-            errList.AppendFormat("+Scaner: \n\t-Error({0}\n)", error.Count.ToString());
-
-            foreach (var er in error)
-            {
-                errList.AppendFormat("\t-line{0} error:{1}", er.GetLine(), er.GetDescription());
-            }
-            return retval;
-        }
-
+        
         public int keywords(string parametr)
         {
             int retVal = 0;

@@ -18,25 +18,8 @@ namespace Walidator
         string filePath = string.Empty;
         string Result = string.Empty;
 
-        //bool a()
-        //{
-        //    return true;
-        //}
-        //bool b()
-        //{
-        //    return true;
-        //}
-        //bool c()
-        //{
-        //    return true;
-        //}
-
         public MainForm()
         {
-            //if (A() && B() && C())
-            //{
-            //    int a = 1;
-            //}
             InitializeComponent();
         }
 
@@ -95,9 +78,9 @@ namespace Walidator
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Błąd podczas otwierania"+ex);
+                MessageBox.Show("Błąd podczas otwierania" + ex);
             }
-           
+
         }
 
 
@@ -115,75 +98,53 @@ namespace Walidator
         private void button1_Click(object sender, EventArgs e)
         {
             Waliduj();
-        
-        }
-
-        /// <summary>
-        /// Funkcja sprawdzająca zwraca wartości int dla kazdego tokena(w postaci string) - funkcja tymczsowa
-        /// 
-        /// </summary>
-        private void Waliduj_1()
-        {
-            
-            List<Token> TokensList = new List<Token>();
-            scanner l = new scanner();
-            //Parser p = new Parser();
-            bool failed = false;
-            StringBuilder Tmp = new StringBuilder();
-            failed = l.lexer(rtbInput.Text, ref TokensList, ref Result);
-            foreach (var item in TokensList)
-            {
-                Tmp.Append(item.GetToken().ToString());
-                Tmp.Append("||");
-                if (item.GetToken() == Token.NewLine)
-                {
-                    Tmp.Append('\n');
-                }
-            }
-
-            rtbResult.Text = Tmp.ToString();
-            Tmp.Length = 0;
 
         }
+
+
         private void Waliduj()
-        { try
+        {
+            try
             {
+                List<Error> errList = new List<Error>();
                 List<Token> TokensList = new List<Token>();
                 scanner l = new scanner();
 
                 bool failed = false;
                 StringBuilder Tmp = new StringBuilder();
-                failed = l.lexer(rtbInput.Text, ref TokensList, ref Result);
+                errList = l.lexer(rtbInput.Text, ref TokensList);
+                Tmp.AppendFormat("+Scanner: \n\t-Error({0})\n", errList.Count.ToString());
 
-
-                //p.start();
-
-                Parser p = new Parser(TokensList);
-                Result = Result+p.start();
-                rtbResult.Text = Result;//+ Tmp.ToString();
-                                        //foreach (var item in TokensList)
-                                        //{
-                                        //    Tmp.Append(item.GetToken().ToString());
-                                        //    Tmp.Append("||");
-                                        //    if (item.GetToken() == Token.NewLine)
-                                        //    {
-                                        //        Tmp.Append('\n');
-                                        //    }
-                                        //}
-                                        //p.start();
-                                        // Tmp.Length = 0;
-
-
-                if (!failed)
+                if (errList.Count<1)
                 {
-                    rtbResult.Text = "Json is valid.";
+                    Parser p = new Parser(TokensList);
+                    Tmp.Append(p.start());
                 }
-                failed = false;
+                else
+                {
+                    Tmp.Append(ListToString(errList));
+                }
+                
+                rtbResult.Text = Tmp.ToString();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
             }
+        }
+
+        public string ListToString(List<Error> error)
+        {
+            string retval = "";
+            StringBuilder errList = new StringBuilder();
+            errList.AppendFormat("+Scaner: \n\t-Error({0}\n)", error.Count.ToString());
+
+            foreach (var er in error)
+            {
+                errList.AppendFormat("\t-line{0} error:{1}", er.GetLine(), er.GetDescription());
             }
+            return retval;
+        }
+
     }
 }

@@ -62,7 +62,7 @@ namespace Walidator
                 }
                 else
                 {
-                    ListError.AppendFormat("   - line:{} error:{1} \n", error.GetLine(), error.GetDescription());
+                    ListError.AppendFormat("   - line:{0} error:{1} \n", error.GetLine(), error.GetDescription());
                 }
                 i++;
             }

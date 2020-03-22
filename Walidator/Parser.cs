@@ -193,122 +193,126 @@ namespace Walidator
         public int Keywords()
         {
             int retVal = 1;//1-continue, 2-EOF, 3 objectEnd
+            bool tmp=true;
+            while (tmp)
+            {
+                tmp = false;
+                if (this.tokens[index].GetToken() == Token.id)
+                {
+                    this.getNextToken();
+                    if (idToken())
+                    {
+                        ErrorList.Clear();
+                    }
+                    else
+                    {
+                        errorCounter = errorCounter + ErrorList.Count;
+                        errorListDisplay.Append(ErrorListToString(ErrorList));
+                        ErrorList.Clear();
+                    }
+                }
+                else if (this.tokens[index].GetToken() == Token.schema)
+                {
+                    this.getNextToken();
+                    if (schemaToken())
+                    {
+                        hasJsonSchema = true;
+                        ErrorList.Clear();
+                    }
+                    else
+                    {
+                        errorCounter = errorCounter + ErrorList.Count;
+                        errorListDisplay.Append(ErrorListToString(ErrorList));
+                        ErrorList.Clear();
+                    }
+                }
+                else if (this.tokens[index].GetToken() == Token.title)
+                {
+                    this.getNextToken();
+                    if (titleToken())
+                    {
+                        ErrorList.Clear();
+                    }
+                    else
+                    {
+                        errorCounter = errorCounter + ErrorList.Count;
+                        errorListDisplay.Append(ErrorListToString(ErrorList));
+                        ErrorList.Clear();
+                    }
+                }
+                else if (this.tokens[index].GetToken() == Token.type)
+                {
+                    this.getNextToken();
+                    if (typeToken())
+                    {
+                        ErrorList.Clear();
+                    }
+                    else
+                    {
+                        errorCounter = errorCounter + ErrorList.Count;
+                        errorListDisplay.Append(ErrorListToString(ErrorList));
+                        ErrorList.Clear();
+                    }
+                }
+                else if (this.tokens[index].GetToken() == Token.properties)
+                {
+                    this.getNextToken();
+                    if (propertiesToken())
+                    {
+                        ErrorList.Clear();
+                    }
+                    else
+                    {
+                        errorCounter = errorCounter + ErrorList.Count;
+                        errorListDisplay.Append(ErrorListToString(ErrorList));
+                        ErrorList.Clear();
+                    }
+                }
+                else if (this.tokens[index].GetToken() == Token.required)
+                {
+                    this.getNextToken();
+                    if (required())
+                    {
+                        ErrorList.Clear();
+                    }
+                    else
+                    {
+                        errorCounter = errorCounter + ErrorList.Count;
+                        errorListDisplay.Append(ErrorListToString(ErrorList));
+                        ErrorList.Clear();
+                    }
+                }
+                else if (this.tokens[index].GetToken() == Token.definitions)
+                {
+                    this.getNextToken();
+                    if (definitionsToken())
+                    {
+                        ErrorList.Clear();
+                    }
+                    else
+                    {
+                        errorCounter = errorCounter + ErrorList.Count;
+                        errorListDisplay.Append(ErrorListToString(ErrorList));
+                        ErrorList.Clear();
+                    }
+                }
+                else if ((this.tokens[index].GetToken() == Token.END))
+                {
+                    retVal = 2;
+                }
+                else if ((this.tokens[index].GetToken() == Token.objectEnd))
+                {
+                    retVal = 3;
+                }
+                else
+                {
+                    //errorListDisplay.AppendFormat("  - line{0}:Symbol not valid( error:{1})\n", tokens[index].GetLine(), Error.ErrorObjectSstop);
+                    tmp = true;
+                    index++;
+                }
 
-
-            if (this.tokens[index].GetToken() == Token.id)
-            {
-                this.getNextToken();
-                if (idToken())
-                {
-                    ErrorList.Clear();
-                }
-                else
-                {
-                    errorCounter = errorCounter + ErrorList.Count;
-                    errorListDisplay.Append(ErrorListToString(ErrorList));
-                    ErrorList.Clear();
-                }
             }
-            else if (this.tokens[index].GetToken() == Token.schema)
-            {
-                this.getNextToken();
-                if (schemaToken())
-                {
-                    hasJsonSchema = true;
-                    ErrorList.Clear();
-                }
-                else
-                {
-                    errorCounter = errorCounter + ErrorList.Count;
-                    errorListDisplay.Append(ErrorListToString(ErrorList));
-                    ErrorList.Clear();
-                }
-            }
-            else if (this.tokens[index].GetToken() == Token.title)
-            {
-                this.getNextToken();
-                if (titleToken())
-                {
-                    ErrorList.Clear();
-                }
-                else
-                {
-                    errorCounter = errorCounter + ErrorList.Count;
-                    errorListDisplay.Append(ErrorListToString(ErrorList));
-                    ErrorList.Clear();
-                }
-            }
-            else if (this.tokens[index].GetToken() == Token.type)
-            {
-                this.getNextToken();
-                if (typeToken())
-                {
-                    ErrorList.Clear();
-                }
-                else
-                {
-                    errorCounter = errorCounter + ErrorList.Count;
-                    errorListDisplay.Append(ErrorListToString(ErrorList));
-                    ErrorList.Clear();
-                }
-            }
-            else if (this.tokens[index].GetToken() == Token.properties)
-            {
-                this.getNextToken();
-                if (propertiesToken())
-                {
-                    ErrorList.Clear();
-                }
-                else
-                {
-                    errorCounter = errorCounter + ErrorList.Count;
-                    errorListDisplay.Append(ErrorListToString(ErrorList));
-                    ErrorList.Clear();
-                }
-            }
-            else if (this.tokens[index].GetToken() == Token.required)
-            {
-                this.getNextToken();
-                if (required())
-                {
-                    ErrorList.Clear();
-                }
-                else
-                {
-                    errorCounter = errorCounter + ErrorList.Count;
-                    errorListDisplay.Append(ErrorListToString(ErrorList));
-                    ErrorList.Clear();
-                }
-            }
-            else if (this.tokens[index].GetToken() == Token.definitions)
-            {
-                this.getNextToken();
-                if (definitionsToken())
-                {
-                    ErrorList.Clear();
-                }
-                else
-                {
-                    errorCounter = errorCounter + ErrorList.Count;
-                    errorListDisplay.Append(ErrorListToString(ErrorList));
-                    ErrorList.Clear();
-                }
-            }
-            else if ((this.tokens[index].GetToken() == Token.END))
-            {
-                retVal = 2;
-            }
-            else
-            {
-                if ((this.tokens[index].GetToken() == Token.objectEnd))
-                { retVal = 3; }
-                else
-                {
-                    errorListDisplay.AppendFormat("  - line{0}:Symbol not valid( error:{1})\n", tokens[index].GetLine(), Error.ErrorObjectSstop);
-                }
-            }
-
-            return retVal;
+                return retVal;
 
         }
 
@@ -899,6 +903,7 @@ namespace Walidator
         /// <returns></returns>
         public bool required()
         {
+            ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorRequired));
             int iterationRequired = 0;
             bool retVal = false;
             if (colon() && arrayStart()) //::= string (',' string )*

@@ -56,7 +56,6 @@ namespace Walidator
         {
             try
             {
-
                 string path = Directory.GetCurrentDirectory();
                 OpenFileDialog of = new OpenFileDialog();
                 of.FileName = "Open Text File";
@@ -84,23 +83,31 @@ namespace Walidator
         }
 
 
+        private void btnClearResult_Click(object sender, EventArgs e)
+        {
+            ClearResult();
+        }
 
         private void btClear_Click(object sender, EventArgs e)
         {
-            Clear();
+            ClearInput();
         }
 
-        private void Clear()
+        private void ClearInput()
         {
             rtbInput.Text = string.Empty;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void ClearResult()
         {
-            Waliduj();
-
+            rtbResult.Text = string.Empty;
         }
 
+
+        private void btnValid_Click(object sender, EventArgs e)
+        {
+            Waliduj();
+        }
 
         private void Waliduj()
         {
@@ -110,10 +117,9 @@ namespace Walidator
                 List<Token> TokensList = new List<Token>();
                 scanner l = new scanner();
 
-                bool failed = false;
                 StringBuilder Tmp = new StringBuilder();
                 errList = l.lexer(rtbInput.Text, ref TokensList);
-                Tmp.AppendFormat("+Scanner: \n\t-Error({0})\n", errList.Count.ToString());
+                Tmp.AppendFormat("+Scanner: \n -Error({0})\n", errList.Count.ToString());
 
                 if (errList.Count<1)
                 {
@@ -124,7 +130,9 @@ namespace Walidator
                 {
                     Tmp.Append(ListToString(errList));
                 }
-                
+
+                ClearResult();
+                errList.Clear();
                 rtbResult.Text = Tmp.ToString();
             }
             catch (Exception ex)
@@ -137,14 +145,16 @@ namespace Walidator
         {
             string retval = "";
             StringBuilder errList = new StringBuilder();
-            errList.AppendFormat("+Scaner: \n\t-Error({0}\n)", error.Count.ToString());
+            //errList.AppendFormat("+Scaner: \n\t-Error({0}\n)", error.Count.ToString());
 
             foreach (var er in error)
             {
-                errList.AppendFormat("\t-line{0} error:{1}", er.GetLine(), er.GetDescription());
+                errList.AppendFormat("  -line{0} error:{1}\n", er.GetLine(), er.GetDescription());
             }
-            return retval;
+
+            return retval=errList.ToString();
         }
 
+        
     }
 }

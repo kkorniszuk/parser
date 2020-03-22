@@ -14,9 +14,7 @@ namespace Walidator
         public List<Token> tokens;
 
         private bool hasJsonSchema = false;
-        private int currentToken;        //numer obecnie przetwarzanego tokenu
         private int index;              //index obecnie przetwarzanego tokeny
-        private int iterationJsonMSS;  // iteration jsonMainSchemaStructures()
         List<Error> ErrorList = new List<Error>();
         StringBuilder errorListDisplay = new StringBuilder();
         int errorCounter=0;
@@ -31,6 +29,7 @@ namespace Walidator
 
         public string start()
         {
+            errorListDisplay.AppendFormat("+Praser: \n", errorCounter.ToString());
             string retVal = "";
 
             if (ObjectStart())
@@ -39,7 +38,7 @@ namespace Walidator
 
             }
 
-            errorListDisplay.AppendFormat("+Praser: \n\t-Error({0})\n", errorCounter.ToString());
+            
             if(errorCounter==0)
             {
                 errorListDisplay.AppendFormat("\n---- JSON Valid ----", errorCounter.ToString());
@@ -54,16 +53,16 @@ namespace Walidator
             string retVal = "";
             StringBuilder ListError = new StringBuilder();
             int i = 0;
-            ListError.AppendFormat("+Praser: \n\t-Error({0}\n)", errorList.Count.ToString());
+
             foreach (var error in errorList)
             {
                 if (i < 1)
                 {
-                    ListError.AppendFormat("Line:{0} Error:{1} \n", error.GetLine(), error.GetDescription());
+                    ListError.AppendFormat("  Line:{0} Error:{1} \n", error.GetLine(), error.GetDescription());
                 }
                 else
                 {
-                    ListError.AppendFormat("  - line:{} error:{1} \n", error.GetLine(), error.GetDescription());
+                    ListError.AppendFormat("   - line:{} error:{1} \n", error.GetLine(), error.GetDescription());
                 }
                 i++;
             }

@@ -17,4 +17,3 @@ D:\RepozytoriumGit\Kompilatory\parser\Walidator\obj\Debug\Walidator.pdb
 D:\RepozytoriumGit\Kompilatory\parser\Walidator\bin\Debug\Walidator.exe.config
 D:\RepozytoriumGit\Kompilatory\parser\Walidator\bin\Debug\Walidator.exe
 D:\RepozytoriumGit\Kompilatory\parser\Walidator\bin\Debug\Walidator.pdb
-D:\RepozytoriumGit\Kompilatory\parser\Walidator\obj\Debug\Walidator.csprojAssemblyReference.cache

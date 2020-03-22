@@ -145,39 +145,45 @@ namespace Walidator
             Tmp.Length = 0;
 
         }
-            private void Waliduj()
-        {
-            List<Token> TokensList = new List<Token>();
-            scanner l = new scanner();
-            
-            bool failed = false;
-            StringBuilder Tmp = new StringBuilder();
-            failed = l.lexer(rtbInput.Text, ref TokensList, ref Result);
-
-          
-            //p.start();
-            
-            Parser p = new Parser(TokensList);
-            Result=Result+p.start();
-            rtbResult.Text = Result;//+ Tmp.ToString();
-            //foreach (var item in TokensList)
-            //{
-            //    Tmp.Append(item.GetToken().ToString());
-            //    Tmp.Append("||");
-            //    if (item.GetToken() == Token.NewLine)
-            //    {
-            //        Tmp.Append('\n');
-            //    }
-            //}
-            //p.start();
-            // Tmp.Length = 0;
-            
-
-            if (!failed)
+        private void Waliduj()
+        { try
             {
-                rtbResult.Text = "Json is valid.";
+                List<Token> TokensList = new List<Token>();
+                scanner l = new scanner();
+
+                bool failed = false;
+                StringBuilder Tmp = new StringBuilder();
+                failed = l.lexer(rtbInput.Text, ref TokensList, ref Result);
+
+
+                //p.start();
+
+                Parser p = new Parser(TokensList);
+                Result = p.start();
+                rtbResult.Text = Result;//+ Tmp.ToString();
+                                        //foreach (var item in TokensList)
+                                        //{
+                                        //    Tmp.Append(item.GetToken().ToString());
+                                        //    Tmp.Append("||");
+                                        //    if (item.GetToken() == Token.NewLine)
+                                        //    {
+                                        //        Tmp.Append('\n');
+                                        //    }
+                                        //}
+                                        //p.start();
+                                        // Tmp.Length = 0;
+
+
+                if (!failed)
+                {
+                    rtbResult.Text = "Json is valid.";
+                }
+                failed = false;
             }
-            failed = false;
-        }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            }
     }
 }

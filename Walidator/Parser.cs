@@ -19,6 +19,7 @@ namespace Walidator
         private int iterationJsonMSS;  // iteration jsonMainSchemaStructures()
         List<Error> ErrorList = new List<Error>();
         StringBuilder errorListDisplay = new StringBuilder();
+        int errorCounter=0;
 
         private Token token;
         public Parser(List<Token> tokenList)
@@ -34,17 +35,14 @@ namespace Walidator
         {
             string retVal = "";
 
-
-
             if (ObjectStart())
             {
                 jsonMainSchemaStructures();
 
             }
+            errorListDisplay.AppendFormat("+Praser: \n\t-Error({0}\n)", errorCounter.ToString());
 
             return retVal = errorListDisplay.ToString();
-
-
         }
 
         private string ErrorListToString(List<Error> errorList)
@@ -52,9 +50,10 @@ namespace Walidator
             string retVal = "";
             StringBuilder ListError = new StringBuilder();
             int i = 0;
+            ListError.AppendFormat("+Praser: \n\t-Error({0}\n)", errorList.Count.ToString());
             foreach (var error in errorList)
             {
-                if (i < 0)
+                if (i < 1)
                 {
                     ListError.AppendFormat("Line:{0} Error:{1} \n", error.GetLine(), error.GetDescription());
                 }
@@ -107,6 +106,39 @@ namespace Walidator
                             }
                         }
                         else if (keywords == 3)
+                        {
+                            keywords = Keywords();
+                            if (hasJsonSchema)
+                            {
+                                tmpMain = false;
+                            }
+                            else
+                            {
+                                tmpMain = false;
+                                errorListDisplay.Append("JSON schema not valid - $schema field is required.");
+                            }
+                        }
+                        else if (keywords == 2)
+                        {
+                            tmpMain = false;
+                            if (hasJsonSchema)
+                            {
+                                tmpMain = false;
+                                errorListDisplay.Append("JSON schema not valid - Found not '}'");
+                            }
+                            else
+                            {
+                                tmpMain = false;
+                                errorListDisplay.Append("JSON schema not valid - $schema field is required.");
+                                errorListDisplay.Append("                      - Found not '}'");
+
+                            }
+                        }
+                    }
+                    else
+                    {
+                        keywords=Keywords();
+                        if (keywords == 3)
                         {
                             keywords = Keywords();
                             if (hasJsonSchema)
@@ -538,7 +570,7 @@ namespace Walidator
         {
 
             bool retVal = false;
-            string[] tmpArray = { "object", "string", "number", "array", "boolean", "null","integer" };
+            string[] tmpArray = { "object", "string", "number", "array", "boolean", "null", "integer" };
             for (int k = 0; k < tmpArray.Length; k++)
             {
                 if (parametr == tmpArray[k])
@@ -600,11 +632,16 @@ namespace Walidator
                                 ErrorList.Remove(ErrorList.Last());
                                 ErrorList.Remove(ErrorList.Last());
                                 index--;
-                                retVal = true;
                                 tmp = false;
+                                
                             }
                         }
 
+                    }
+                    else 
+                    {
+                        
+                        tmp = false;
                     }
 
                     iterationType++;
@@ -676,7 +713,7 @@ namespace Walidator
                             }
 
                         }
-                        
+
                     }
                     iterrationProperties++;
                 }
@@ -686,94 +723,30 @@ namespace Walidator
         }
 
         /// <summary>
-        /// Check ObjectProperties::= '{' fields '}'//'{' fields (',' fields)* '}'
+        /// Check ObjectProperties::= '{' fields '}'
         /// </summary>
         /// <returns></returns>
         public bool objectProperties()
         {
             bool retVal = false;
 
-            
-                bool tmp = true;
-                int iterrationObjectProperties = 0;
+            if (String() && Colon() && ObjectStart())
+            {
 
-            //while (tmp)
-            //{
-                if (String() && Colon() && ObjectStart())
+                if (fields())
                 {
-
-                    if (fields())
-                    {
-                        tmp = true;
-                        retVal = true;
-                    }
-                    else
-                    {
-                        tmp = false;
-                        retVal = false;
-                    }
+                    retVal = true;
                 }
-                
-                //    string tmpS = this.tokens[index].GetValString();
-
-                //    if ((iterrationObjectProperties < 1) && fields())
-                //    {
-                //        tmp = true;
-                //        retVal = true;
-                //        //skipSpace();
-                //    }
-                //    else
-                //    {
-                //        if (Comma())
-                //        {
-                //            if (fields())
-                //            {
-                //                retVal = true;
-                //                tmp = true;
-                //            }
-                //            else
-                //            {
-                //                tmp = false;
-                //                retVal = false;
-                //            }
-                //        }
-                //        else
-                //        {
-                //            if (fields())
-                //            {
-                //                retVal = false;
-                //                tmp = false;
-                //            }
-                //            else
-                //            {
-                //                if (ObjectEnd())
-                //                {
-                //                    tmp = false;
-                //                    retVal = true;
-                //                }
-                //                else
-                //                {
-                //                    tmp = false;
-                //                    retVal = false;
-                //                }
-
-                //            }
-                //        }
-                //    }
-                    
-                //}
                 else
                 {
                     retVal = false;
-                    tmp = false;
                 }
-            //    iterrationObjectProperties++;
-            //}
-            
-
+            }
+            else
+            {
+                retVal = false;
+            }
             return retVal;
-
-
         }
 
         /// <summary>
@@ -1032,7 +1005,6 @@ namespace Walidator
         /// <returns></returns>
         public bool enumToken()
         {
-
             int iterationEnum = 0;
             bool retVal = false;
             if (Colon() && ArrayStart()) //::= string (',' string )*
@@ -1043,7 +1015,7 @@ namespace Walidator
                     if ((iterationEnum < 1) && String())
                     {
                         tmp = true;
-
+                        retVal = true;
                     }
                     else
                     {
@@ -1062,14 +1034,14 @@ namespace Walidator
                         }
                         else
                         {
-                            if (String())
-                            {
-                                retVal = false;
-                                tmp = false;
-                            }
-                            else
+                            if (ArrayEnd())
                             {
                                 retVal = true;
+                                tmp = false;
+                            }
+                            else//(String())
+                            {
+                                retVal = false;
                                 tmp = false;
                             }
                         }
@@ -1087,122 +1059,21 @@ namespace Walidator
         /// <returns></returns>
         public bool definitionsToken()
         {
+            ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorDefinitions));//Zostanie usunięte jeśli retVal==true
             bool retVal = false;
 
-            retVal = objectProperties();
-            //if (Colon() && ObjectStart(false))
-            //{
-            //    bool tmp = true;
-            //    int iterrationDefinitions = 0;
-
-            //    while (tmp)
-            //    {
-            //        string tmpS = this.tokens[index].GetValString();
-
-            //        if ((iterrationDefinitions < 1) && ObjectDefinitions())
-            //        {
-            //            tmp = true;
-            //            retVal = true;
-            //            //skipSpace();
-            //        }
-            //        else
-            //        {
-            //            if (Comma())
-            //            {
-            //                if (ObjectDefinitions())
-            //                {
-            //                    retVal = true;
-            //                    tmp = true;
-            //                }
-            //                else
-            //                {
-            //                    tmp = false;
-            //                    retVal = false;
-            //                }
-            //            }
-            //            else
-            //            {
-            //                if (ObjectDefinitions())
-            //                {
-            //                    retVal = false;
-            //                    tmp = false;
-            //                }
-            //                else
-            //                {
-            //                    if (ObjectEnd())
-            //                    {
-            //                        retVal = true;
-            //                        tmp = false;
-            //                    }
-            //                    else
-            //                    {
-            //                        retVal = false;
-            //                        tmp = false;
-            //                    }
-            //                }
-
-            //            }
-            //            iterrationDefinitions++;
-            //        }
-            //    }
-            //}
-            return retVal;
-        }
-
-        /// <summary>
-        /// ObjectDefinitions::= '{' fields, (',' fields)* '}'
-        /// </summary>
-        /// <returns></returns>
-        public bool ObjectDefinitions()
-        {
-            bool retVal = false;
-
-
+            if (Colon() && ObjectStart())
+            {
+                if (objectProperties()&&ObjectEnd())
+                {
+                    retVal = true;
+                }
+            }
 
             return retVal;
         }
 
-        //public bool definitionToken()
-        //{
-        //    bool retVal = false;
-        //    if (checkNextTokenValue().GetToken() == Token.objectEnd)
-        //    {
-        //        // it should return true - next token will be end of object
-        //        retVal = true;
-        //    }
-        //    else if (checkNextTokenValue().GetToken() == Token.stringToken)
-        //    {
-        //        if (String())
-        //        {
-        //            CheckStartOfObject();
-        //            getNextToken();
-        //            if (tokens[index].GetToken() == Token.type)
-        //            {
-        //                typeToken();
-        //            }
-        //            else if (tokens[index].GetToken() == Token.properties)
-        //            {
-        //                propertiesToken();
-        //            }
-        //            else
-        //            {
-        //                throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected keywords: type or properties"));
-        //            }
-        //            ObjectEnd();
-        //        }
-        //        else
-        //        {
-        //            throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected string token"));
-        //        }
-        //        definitionToken();
-        //    }
-        //    else
-        //    {
-        //        throw new JSONException(ErrorMessage.errorMsg(tokens[index].GetLine(), "Expected property name or end of object. "));
-        //    }
 
-        //    return retVal;
-        //}
 
         /// <summary>
         /// Check $ref
@@ -1212,10 +1083,11 @@ namespace Walidator
         {
             // current token is ref element
             bool retVal = false;
-            if (String())
+            if (Colon() && String())
             {
+                index--;
                 string refString = tokens[index].GetValString();
-                if (refString[0] == '#')
+                if ((refString[0] == '#'))
                 {
                     retVal = true;
                 }
@@ -1223,6 +1095,7 @@ namespace Walidator
                 {
                     ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorRef));
                 }
+                index++;
             }
 
             return retVal;

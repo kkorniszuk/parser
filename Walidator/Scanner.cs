@@ -321,7 +321,7 @@ namespace Walidator
                 case "minLength﻿":
                     retVal = 60;
                     break;
-                case "definitions﻿":
+                case "definitions":
                     retVal = 61;
                     break;
                 case "maxLength﻿":

@@ -159,7 +159,7 @@ namespace Walidator
                 //p.start();
 
                 Parser p = new Parser(TokensList);
-                Result = p.start();
+                Result = Result+p.start();
                 rtbResult.Text = Result;//+ Tmp.ToString();
                                         //foreach (var item in TokensList)
                                         //{

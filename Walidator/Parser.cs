@@ -27,14 +27,14 @@ namespace Walidator
 
 
 
-        public string start()
+        public string Start()
         {
             errorListDisplay.AppendFormat("+Praser: \n", errorCounter.ToString());
             string retVal = "";
 
             if (ObjectStart())
             {
-                jsonMainSchemaStructures();
+                JsonMainSchemaStructures();
 
             }
 
@@ -72,9 +72,9 @@ namespace Walidator
         }
 
         /// <summary>
-        /// Check jsonMainSchemaStructures::= '{' keywords (',' keywords)*'}'
+        /// Check JsonMainSchemaStructures::= '{' keywords (',' keywords)*'}'
         /// </summary>
-        public bool jsonMainSchemaStructures()
+        public bool JsonMainSchemaStructures()
         {
             bool retVal = false;
             int iterationJsonMSS = 0;
@@ -85,7 +85,7 @@ namespace Walidator
                 int keywords = 0;
                 if (iterationJsonMSS > 0)
                 {
-                    if (Comma())
+                    if (Coma())
                     {
                         keywords = Keywords();
                         if (keywords == 1)
@@ -103,7 +103,7 @@ namespace Walidator
                             else
                             {
                                 tmpMain = false;
-                                errorListDisplay.Append("JSON schema not valid - $schema field is required.");
+                                errorListDisplay.Append("JSON schema not valid - $schema field is Required.");
                                 errorListDisplay.Append("                      - Found not '}'");
 
                             }
@@ -118,7 +118,7 @@ namespace Walidator
                             else
                             {
                                 tmpMain = false;
-                                errorListDisplay.Append("JSON schema not valid - $schema field is required.");
+                                errorListDisplay.Append("JSON schema not valid - $schema field is Required.");
                             }
                         }
                         else if (keywords == 2)
@@ -132,7 +132,7 @@ namespace Walidator
                             else
                             {
                                 tmpMain = false;
-                                errorListDisplay.Append("JSON schema not valid - $schema field is required.");
+                                errorListDisplay.Append("JSON schema not valid - $schema field is Required.");
                                 errorListDisplay.Append("                      - Found not '}'");
 
                             }
@@ -151,7 +151,7 @@ namespace Walidator
                             else
                             {
                                 tmpMain = false;
-                                errorListDisplay.Append("JSON schema not valid - $schema field is required.");
+                                errorListDisplay.Append("JSON schema not valid - $schema field is Required.");
                             }
                         }
                     }
@@ -165,7 +165,7 @@ namespace Walidator
                     }
                     else
                     {
-                        errorListDisplay.Append("JSON schema not valid - $schema field is required.");
+                        errorListDisplay.Append("JSON schema not valid - $schema field is Required.");
                     }
 
                 }
@@ -178,11 +178,11 @@ namespace Walidator
         /// <summary>
         /// index++
         /// </summary>
-        public void getNextToken()
+        public void GetNextToken()
         {
-            if (this.index < this.tokens.Count)
+            if (index < tokens.Count)
             {
-                this.index++;
+                index++;
             }
         }
 
@@ -192,15 +192,15 @@ namespace Walidator
         /// <returns>return 1 if decect keywords, return 2 if detect EOF, return 3 if detect '}'</returns>
         public int Keywords()
         {
-            int retVal = 1;//1-continue, 2-EOF, 3 objectEnd
+            int retVal = 1;//1-continue, 2-EOF, 3 ObjectEnd
             bool tmp=true;
             while (tmp)
             {
                 tmp = false;
-                if (this.tokens[index].GetToken() == Token.id)
+                if (tokens[index].GetToken() == Token.Id)
                 {
-                    this.getNextToken();
-                    if (idToken())
+                    GetNextToken();
+                    if (IdToken())
                     {
                         ErrorList.Clear();
                     }
@@ -211,10 +211,10 @@ namespace Walidator
                         ErrorList.Clear();
                     }
                 }
-                else if (this.tokens[index].GetToken() == Token.schema)
+                else if (tokens[index].GetToken() == Token.Schema)
                 {
-                    this.getNextToken();
-                    if (schemaToken())
+                    GetNextToken();
+                    if (SchemaToken())
                     {
                         hasJsonSchema = true;
                         ErrorList.Clear();
@@ -226,10 +226,10 @@ namespace Walidator
                         ErrorList.Clear();
                     }
                 }
-                else if (this.tokens[index].GetToken() == Token.title)
+                else if (tokens[index].GetToken() == Token.Title)
                 {
-                    this.getNextToken();
-                    if (titleToken())
+                    GetNextToken();
+                    if (TitleToken())
                     {
                         ErrorList.Clear();
                     }
@@ -240,10 +240,10 @@ namespace Walidator
                         ErrorList.Clear();
                     }
                 }
-                else if (this.tokens[index].GetToken() == Token.type)
+                else if (tokens[index].GetToken() == Token.Type)
                 {
-                    this.getNextToken();
-                    if (typeToken())
+                    GetNextToken();
+                    if (TypeToken())
                     {
                         ErrorList.Clear();
                     }
@@ -254,10 +254,10 @@ namespace Walidator
                         ErrorList.Clear();
                     }
                 }
-                else if (this.tokens[index].GetToken() == Token.properties)
+                else if (tokens[index].GetToken() == Token.Properties)
                 {
-                    this.getNextToken();
-                    if (propertiesToken())
+                    GetNextToken();
+                    if (PropertiesToken())
                     {
                         ErrorList.Clear();
                     }
@@ -268,10 +268,10 @@ namespace Walidator
                         ErrorList.Clear();
                     }
                 }
-                else if (this.tokens[index].GetToken() == Token.required)
+                else if (tokens[index].GetToken() == Token.Required)
                 {
-                    this.getNextToken();
-                    if (required())
+                    GetNextToken();
+                    if (Required())
                     {
                         ErrorList.Clear();
                     }
@@ -282,10 +282,10 @@ namespace Walidator
                         ErrorList.Clear();
                     }
                 }
-                else if (this.tokens[index].GetToken() == Token.definitions)
+                else if (tokens[index].GetToken() == Token.Definitions)
                 {
-                    this.getNextToken();
-                    if (definitionsToken())
+                    GetNextToken();
+                    if (DefinitionsToken())
                     {
                         ErrorList.Clear();
                     }
@@ -296,11 +296,11 @@ namespace Walidator
                         ErrorList.Clear();
                     }
                 }
-                else if ((this.tokens[index].GetToken() == Token.END))
+                else if ((tokens[index].GetToken() == Token.END))
                 {
                     retVal = 2;
                 }
-                else if ((this.tokens[index].GetToken() == Token.objectEnd))
+                else if ((tokens[index].GetToken() == Token.ObjectEnd))
                 {
                     retVal = 3;
                 }
@@ -320,14 +320,14 @@ namespace Walidator
         /// Check string
         /// </summary>
         /// <returns></returns>
-        public bool String()
+        public bool StringToken()
         {
             bool retVal = false;
 
 
-            if (this.tokens[index].GetToken() == Token.stringToken)
+            if (tokens[index].GetToken() == Token.StringToken)
             {
-                this.getNextToken();
+                GetNextToken();
                 retVal = true;
             }
             else
@@ -342,14 +342,14 @@ namespace Walidator
         /// Check ','
         /// </summary>
         /// <returns></returns>
-        public bool Comma()
+        public bool Coma()
         {
             bool retVal = false;
 
 
-            if (this.tokens[index].GetToken() == Token.comma)
+            if (tokens[index].GetToken() == Token.Coma)
             {
-                this.getNextToken();
+                GetNextToken();
                 retVal = true;
             }
             else
@@ -365,7 +365,7 @@ namespace Walidator
         /// Check Url
         /// </summary>
         /// <returns></returns>
-        public bool isUrlString()
+        public bool IsUrlString()
         {
             index--;
             bool retVal = Uri.IsWellFormedUriString(tokens[index].GetValString(), UriKind.RelativeOrAbsolute);
@@ -375,7 +375,7 @@ namespace Walidator
             }
             else
             {
-                getNextToken();
+                GetNextToken();
             }
             return retVal;
         }
@@ -387,11 +387,11 @@ namespace Walidator
         public bool ObjectStart()
         {
             bool retVal = false;
-            int a = this.tokens[index].GetToken();
-            if (this.tokens[index].GetToken() == Token.objectStart)
+            int a = tokens[index].GetToken();
+            if (tokens[index].GetToken() == Token.ObjectStart)
             {
                 retVal = true;
-                this.getNextToken();
+                GetNextToken();
             }
             else
             {
@@ -404,13 +404,13 @@ namespace Walidator
         /// Check '}'
         /// </summary>
         /// <returns></returns>
-        public bool objectEnd()
+        public bool ObjectEnd()
         {
             bool retVal = false;
 
-            if (this.tokens[index].GetToken() == Token.objectEnd)
+            if (tokens[index].GetToken() == Token.ObjectEnd)
             {
-                this.getNextToken();
+                GetNextToken();
                 retVal = true;
             }
             else
@@ -424,14 +424,14 @@ namespace Walidator
         /// Check '['
         /// </summary>
         /// <returns></returns>
-        public bool arrayStart()
+        public bool ArrayStart()
         {
             bool retVal = false;
 
-            if (this.tokens[index].GetToken() == Token.arrayStart)
+            if (tokens[index].GetToken() == Token.ArrayStart)
             {
                 retVal = true;
-                this.getNextToken();
+                GetNextToken();
 
             }
             else
@@ -446,16 +446,16 @@ namespace Walidator
         /// Check ']'
         /// </summary>
         /// <returns></returns>
-        public bool arrayEnd()
+        public bool ArrayEnd()
         {
             bool retVal = false;
 
 
 
-            if (this.tokens[index].GetToken() == Token.arrayEnd)
+            if (tokens[index].GetToken() == Token.ArrayEnd)
             {
                 retVal = true;
-                this.getNextToken();
+                GetNextToken();
             }
             else
             {
@@ -469,13 +469,13 @@ namespace Walidator
         /// Check WhiteSpace
         /// </summary>
         /// <returns></returns>
-        public bool whiteSpace()
+        public bool WhiteSpace()
         {
             bool retVal = false;
 
-            if (this.tokens[index].GetToken() == Token.WhiteSpace)
+            if (tokens[index].GetToken() == Token.WhiteSpace)
             {
-                this.getNextToken();
+                GetNextToken();
                 retVal = true;
             }
 
@@ -492,9 +492,9 @@ namespace Walidator
             bool retVal = false;
 
 
-            if (this.tokens[index].GetToken() == Token.number)
+            if (tokens[index].GetToken() == Token.Number)
             {
-                this.getNextToken();
+                GetNextToken();
                 retVal = true;
             }
 
@@ -505,21 +505,21 @@ namespace Walidator
         /// Chheck ': '
         /// </summary>
         /// <returns></returns>
-        public bool colon()
+        public bool Colon()
         {
             bool retVal = false;
 
 
-            if (this.tokens[index].GetToken() == Token.colon)
+            if (tokens[index].GetToken() == Token.Colon)
             {
-                this.getNextToken();
-                if (this.tokens[index].GetToken() == Token.WhiteSpace)
+                GetNextToken();
+                if (tokens[index].GetToken() == Token.WhiteSpace)
                 {
-                    this.getNextToken();
+                    GetNextToken();
                     bool Tmp = true;
                     while (Tmp)
                     {
-                        Tmp = whiteSpace();
+                        Tmp = WhiteSpace();
                     }
                     retVal = true;
                 }
@@ -539,25 +539,25 @@ namespace Walidator
         /// Check $id: string
         /// </summary>
         /// <returns>True if correct </returns>
-        public bool idToken() // : string
+        public bool IdToken() // : string
         {
             ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorID));//Zostanie usunięte jeśli retVal==true
             bool retVal = false;
-            if (colon() && String())
+            if (Colon() && StringToken())
             {
                 retVal = true;
             }
             return retVal;
         }
 
-        public bool schemaToken()
+        public bool SchemaToken()
         {
             ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorSchema));//Zostanie usunięte jeśli retVal==true
             bool retVal = false;
-            if (colon() && String() && isUrlString())
+            if (Colon() && StringToken() && IsUrlString())
             {
 
-                this.hasJsonSchema = true;
+                hasJsonSchema = true;
                 retVal = true;
 
             }
@@ -568,11 +568,11 @@ namespace Walidator
         /// Check title::= string 
         /// </summary>
         /// <returns></returns>
-        public bool titleToken()
+        public bool TitleToken()
         {
             ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorTitle));//Zostanie usunięte jeśli retVal==true
             bool retVal = false;
-            if (colon() && String())
+            if (Colon() && StringToken())
             {
                 retVal = true;
             }
@@ -581,12 +581,12 @@ namespace Walidator
 
 
         /// <summary>
-        ///  Compare String with Item Array StringType
+        ///  Compare StringToken with Item Array StringType
         ///  "object" || "string" || "number" || "array" || "boolean" ||"null"
         /// </summary>
         /// <param name="parametr"></param>
         /// <returns></returns>
-        public bool stringType(string parametr)
+        public bool StringType(string parametr)
         {
 
             bool retVal = false;
@@ -595,7 +595,7 @@ namespace Walidator
             {
                 if (parametr == tmpArray[k])
                 {
-                    getNextToken();
+                    GetNextToken();
                     retVal = true;
                 }
 
@@ -614,34 +614,34 @@ namespace Walidator
         /// Check type : StringType (',' StringType)*
         /// </summary>
         /// <returns></returns>
-        public bool typeToken() //  ::= (StringType ',')*
+        public bool TypeToken() //  ::= (StringType ',')*
         {
             int iterationType = 0;
             ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorType));//Zostanie usunięte jeśli retVal==true
             bool retVal = false;
-            if (colon())
+            if (Colon())
             {
                 bool tmp = true;
                 while (tmp)
                 {
-                    string tmpS = this.tokens[index].GetValString();
+                    string tmpS = tokens[index].GetValString();
 
-                    if ((iterationType < 1) && stringType(tmpS))
+                    if ((iterationType < 1) && StringType(tmpS))
                     {
                         tmp = true;
                         retVal = true;
                     }
-                    else if (Comma())
+                    else if (Coma())
                     {
-                        tmpS = this.tokens[index].GetValString();
-                        if (stringType(tmpS))
+                        tmpS = tokens[index].GetValString();
+                        if (StringType(tmpS))
                         {
                             retVal = true;
                             tmp = true;
                         }
                         else
                         {
-                            if (String())
+                            if (StringToken())
                             {
                                 tmp = true;
                                 retVal = false;
@@ -675,31 +675,31 @@ namespace Walidator
         /// Check properties= '{' ObjectProperties (',' ObjectProperties)* '}'
         /// </summary>
         /// <returns></returns>
-        public bool propertiesToken()
+        public bool PropertiesToken()
         {
             ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorProperties));//Zostanie usunięte jeśli retVal==true
             bool retVal = false;
 
 
-            if (colon() && ObjectStart())
+            if (Colon() && ObjectStart())
             {
                 bool tmp = true;
                 int iterrationProperties = 0;
 
                 while (tmp)
                 {
-                    string tmpS = this.tokens[index].GetValString();
+                    string tmpS = tokens[index].GetValString();
 
-                    if ((iterrationProperties < 1) && objectProperties())
+                    if ((iterrationProperties < 1) && ObjectProperties())
                     {
                         tmp = true;
                         retVal = true;
                     }
                     else
                     {
-                        if (Comma())
+                        if (Coma())
                         {
-                            if (objectProperties())
+                            if (ObjectProperties())
                             {
                                 retVal = true;
                                 tmp = true;
@@ -712,14 +712,14 @@ namespace Walidator
                         }
                         else
                         {
-                            if (objectProperties())
+                            if (ObjectProperties())
                             {
                                 retVal = false;
                                 tmp = false;
                             }
                             else
                             {
-                                if (objectEnd())
+                                if (ObjectEnd())
                                 {
                                     retVal = true;
                                     tmp = false;
@@ -745,14 +745,14 @@ namespace Walidator
         /// Check ObjectProperties::= '{' fields '}'
         /// </summary>
         /// <returns></returns>
-        public bool objectProperties()
+        public bool ObjectProperties()
         {
             bool retVal = false;
 
-            if (String() && colon() && ObjectStart())
+            if (StringToken() && Colon() && ObjectStart())
             {
 
-                if (fields())
+                if (Fields())
                 {
                     retVal = true;
                 }
@@ -772,7 +772,7 @@ namespace Walidator
         /// fields::= fieldsItems (','fieldsItems)*
         /// </summary>
         /// <returns></returns>
-        public bool fields()
+        public bool Fields()
         {
             bool retVal = false;
 
@@ -781,18 +781,18 @@ namespace Walidator
 
             while (tmp)
             {
-                string tmpS = this.tokens[index].GetValString();
+                string tmpS = tokens[index].GetValString();
 
-                if ((iterrationFields < 1) && fieldsItem())
+                if ((iterrationFields < 1) && FieldsItem())
                 {
                     tmp = true;
                     retVal = true;
                 }
                 else
                 {
-                    if (Comma())
+                    if (Coma())
                     {
-                        if (fieldsItem())
+                        if (FieldsItem())
                         {
                             retVal = true;
                             tmp = true;
@@ -805,12 +805,12 @@ namespace Walidator
                     }
                     else
                     {
-                        if (objectEnd())
+                        if (ObjectEnd())
                         {
                             tmp = false;
                             retVal = true;
                         }
-                        else if (fieldsItem())
+                        else if (FieldsItem())
                         {
                             retVal = false;
                             tmp = false;
@@ -830,51 +830,51 @@ namespace Walidator
         }
 
         /// <summary>
-        /// Check fieldsItems::= (description|type|minimum|maximum|enum|minLength|maxLength)
+        /// Check fieldsItems::= (Description|type|Minimum|Maximum|enum|MinLength|MaxLength)
         /// </summary>
         /// <returns></returns>
-        public bool fieldsItem()
+        public bool FieldsItem()
         {
             bool retVal = false;
             int tmpI = tokens[index].GetToken();
 
             switch (tmpI)
             {
-                case Token.properties:
-                    getNextToken();
-                    retVal = propertiesToken();
+                case Token.Properties:
+                    GetNextToken();
+                    retVal = PropertiesToken();
                     break;
-                case Token.type:
-                    getNextToken();
-                    retVal = typeToken();
+                case Token.Type:
+                    GetNextToken();
+                    retVal = TypeToken();
                     break;
-                case Token.description:
-                    getNextToken();
-                    retVal = description();
+                case Token.Description:
+                    GetNextToken();
+                    retVal = Description();
                     break;
-                case Token.maxLength:
-                    getNextToken();
-                    retVal = maxLength();
+                case Token.MaxLength:
+                    GetNextToken();
+                    retVal = MaxLength();
                     break;
-                case Token.minLength:
-                    getNextToken();
-                    retVal = minLength();
+                case Token.MinLength:
+                    GetNextToken();
+                    retVal = MinLength();
                     break;
-                case Token.minimum:
-                    getNextToken();
-                    retVal = minimum();
+                case Token.Minimum:
+                    GetNextToken();
+                    retVal = Minimum();
                     break;
-                case Token.maximum:
-                    getNextToken();
-                    retVal = maximum();
+                case Token.Maximum:
+                    GetNextToken();
+                    retVal = Maximum();
                     break;
-                case Token.enumToken:
-                    getNextToken();
-                    retVal = enumToken();
+                case Token.EnumToken:
+                    GetNextToken();
+                    retVal = EnumToken();
                     break;
-                case Token.refToken:
-                    getNextToken();
-                    retVal = refToken();
+                case Token.RefToken:
+                    GetNextToken();
+                    retVal = RefToken();
                     break;
                 default:
                     retVal = false;
@@ -885,12 +885,12 @@ namespace Walidator
         }
 
 
-        public bool description()
+        public bool Description()
         {
 
             bool retVal = false;
 
-            if (colon() && String())
+            if (Colon() && StringToken())
             {
                 retVal = true;
             }
@@ -898,28 +898,28 @@ namespace Walidator
         }
 
         /// <summary>
-        /// Check required::= '[' string (',' string)* ']'
+        /// Check Required::= '[' string (',' string)* ']'
         /// </summary>
         /// <returns></returns>
-        public bool required()
+        public bool Required()
         {
             ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorRequired));
             int iterationRequired = 0;
             bool retVal = false;
-            if (colon() && arrayStart()) //::= string (',' string )*
+            if (Colon() && ArrayStart()) //::= string (',' string )*
             {
                 bool tmp = true;
                 while (tmp)
                 {
-                    if ((iterationRequired < 1) && String())
+                    if ((iterationRequired < 1) && StringToken())
                     {
                         tmp = true;
                     }
                     else
                     {
-                        if (Comma())
+                        if (Coma())
                         {
-                            if (String())
+                            if (StringToken())
                             {
                                 retVal = true;
                                 tmp = true;
@@ -932,14 +932,14 @@ namespace Walidator
                         }
                         else
                         {
-                            if (String())
+                            if (StringToken())
                             {
                                 retVal = false;
                                 tmp = false;
                             }
                             else
                             {
-                                if (arrayEnd())
+                                if (ArrayEnd())
                                 {
                                     retVal = true;
                                     tmp = false;
@@ -959,13 +959,13 @@ namespace Walidator
         }
 
         /// <summary>
-        /// Check minimum::= Number
+        /// Check Minimum::= Number
         /// </summary>
         /// <returns></returns>
-        public bool minimum()
+        public bool Minimum()
         {
             bool retVal = false;
-            if (colon() && Number())
+            if (Colon() && Number())
             {
                 retVal = true;
             }
@@ -973,13 +973,13 @@ namespace Walidator
         }
 
         /// <summary>
-        /// Check maximum::= Number
+        /// Check Maximum::= Number
         /// </summary>
         /// <returns></returns>
-        public bool maximum()
+        public bool Maximum()
         {
             bool retVal = false;
-            if (colon() && Number())
+            if (Colon() && Number())
             {
                 retVal = true;
             }
@@ -987,13 +987,13 @@ namespace Walidator
         }
 
         /// <summary>
-        /// Check minLength::= Number
+        /// Check MinLength::= Number
         /// </summary>
         /// <returns></returns>
-        public bool minLength()
+        public bool MinLength()
         {
             bool retVal = false;
-            if (colon() && Number())
+            if (Colon() && Number())
             {
                 retVal = true;
             }
@@ -1001,13 +1001,13 @@ namespace Walidator
         }
 
         /// <summary>
-        /// Check maxLength::= Number
+        /// Check MaxLength::= Number
         /// </summary>
         /// <returns></returns>
-        public bool maxLength()
+        public bool MaxLength()
         {
             bool retVal = false;
-            if (colon() && Number())
+            if (Colon() && Number())
             {
                 retVal = true;
             }
@@ -1018,25 +1018,25 @@ namespace Walidator
         /// Check enum::= '[' string (',' string)* ']'
         /// </summary>
         /// <returns></returns>
-        public bool enumToken()
+        public bool EnumToken()
         {
             int iterationEnum = 0;
             bool retVal = false;
-            if (colon() && arrayStart()) //::= string (',' string )*
+            if (Colon() && ArrayStart()) //::= string (',' string )*
             {
                 bool tmp = true;
                 while (tmp)
                 {
-                    if ((iterationEnum < 1) && String())
+                    if ((iterationEnum < 1) && StringToken())
                     {
                         tmp = true;
                         retVal = true;
                     }
                     else
                     {
-                        if (Comma())
+                        if (Coma())
                         {
-                            if (String())
+                            if (StringToken())
                             {
                                 retVal = true;
                                 tmp = true;
@@ -1049,12 +1049,12 @@ namespace Walidator
                         }
                         else
                         {
-                            if (arrayEnd())
+                            if (ArrayEnd())
                             {
                                 retVal = true;
                                 tmp = false;
                             }
-                            else//(String())
+                            else//(StringToken())
                             {
                                 retVal = false;
                                 tmp = false;
@@ -1071,14 +1071,14 @@ namespace Walidator
         /// Check definitions='{' objectDefinitions (',' objectDefinitions)* '}'
         /// </summary>
         /// <returns></returns>
-        public bool definitionsToken()
+        public bool DefinitionsToken()
         {
             ErrorList.Add(new Error(tokens[index].GetLine(), Error.ErrorDefinitions));//Zostanie usunięte jeśli retVal==true
             bool retVal = false;
 
-            if (colon() && ObjectStart())
+            if (Colon() && ObjectStart())
             {
-                if (objectProperties()&&objectEnd())
+                if (ObjectProperties()&&ObjectEnd())
                 {
                     retVal = true;
                 }
@@ -1093,11 +1093,11 @@ namespace Walidator
         /// Check $ref
         /// </summary>
         /// <returns></returns>
-        public bool refToken()
+        public bool RefToken()
         {
             // current token is ref element
             bool retVal = false;
-            if (colon() && String())
+            if (Colon() && StringToken())
             {
                 index--;
                 string refString = tokens[index].GetValString();

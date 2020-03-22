@@ -64,44 +64,44 @@ namespace Walidator
                     }
 
                 }
-                else if (c == '{')// CHAR lub objectStart
+                else if (c == '{')// CHAR lub ObjectStart
                 {
                     if (!isString)
                     {
-                        TokensList.Add(new Token(Token.objectStart, line, cString));
+                        TokensList.Add(new Token(Token.ObjectStart, line, cString));
                     }
                     else
                     {
                         currentString.Append(c);
                     }
                 }
-                else if (c == '}')// CHAR lub objectEnd
+                else if (c == '}')// CHAR lub ObjectEnd
                 {
                     if (!isString)
                     {
-                        TokensList.Add(new Token(Token.objectEnd, line, cString));
+                        TokensList.Add(new Token(Token.ObjectEnd, line, cString));
                     }
                     else
                     {
                         currentString.Append(c);
                     }
                 }
-                else if (c == '[')// CHAR lub arrayStart
+                else if (c == '[')// CHAR lub ArrayStart
                 {
                     if (!isString)
                     {
-                        TokensList.Add(new Token(Token.arrayStart, line, cString));
+                        TokensList.Add(new Token(Token.ArrayStart, line, cString));
                     }
                     else
                     {
                         currentString.Append(c);
                     }
                 }
-                else if (c == ']') // CHAR lub arrayEnd
+                else if (c == ']') // CHAR lub ArrayEnd
                 {
                     if (!isString)
                     {
-                        TokensList.Add(new Token(Token.arrayEnd, line, cString));
+                        TokensList.Add(new Token(Token.ArrayEnd, line, cString));
                     }
                     else
                     {
@@ -122,7 +122,7 @@ namespace Walidator
 
                         if (tmp2 == 0)//nie wykrytosłów kluczowych
                         {
-                            TokensList.Add(new Token(Token.stringToken, line, tmp1));
+                            TokensList.Add(new Token(Token.StringToken, line, tmp1));
                         }
                         else
                         {
@@ -139,7 +139,7 @@ namespace Walidator
                 {
                     if (!isString)
                     {
-                        TokensList.Add(new Token(Token.colon, line, cString));
+                        TokensList.Add(new Token(Token.Colon, line, cString));
 
                     }
                     else
@@ -151,7 +151,7 @@ namespace Walidator
                 {
                     if (!isString)
                     {
-                        TokensList.Add(new Token(Token.comma, line, cString));
+                        TokensList.Add(new Token(Token.Coma, line, cString));
                     }
                     else
                     {
@@ -193,7 +193,7 @@ namespace Walidator
                         n--;
                         if (numberRegex.IsMatch(tmp))
                         {
-                            TokensList.Add(new Token(Token.number, line, currentString.ToString()));
+                            TokensList.Add(new Token(Token.Number, line, currentString.ToString()));
                             currentString.Length = 0;
                         }
                         else
@@ -301,13 +301,13 @@ namespace Walidator
                 case "maximum":
                     retVal = 59;
                     break;
-                case "minLength﻿":
+                case "minLength":
                     retVal = 60;
                     break;
                 case "definitions":
                     retVal = 61;
                     break;
-                case "maxLength﻿":
+                case "maxLength":
                     retVal = 62;
                     break;
                 case "enum":

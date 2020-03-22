@@ -124,7 +124,7 @@ namespace Walidator
                 if (errList.Count<1)
                 {
                     Parser p = new Parser(TokensList);
-                    Tmp.Append(p.start());
+                    Tmp.Append(p.Start());
                 }
                 else
                 {
